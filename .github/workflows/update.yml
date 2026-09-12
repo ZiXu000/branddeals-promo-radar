@@ -1,0 +1,51 @@
+# ILANG
+# TYPE: workflow | ROLE: scheduler | PROJECT: branddeals-promo-radar
+# ::STATE{@CI, runs:scraper.py+build.py, every:6h, commits:data/offers.json+site/}
+# ::RULE{运行时零推理 零API密钥 纯 Python}
+# ::BOUNDARY{never:编数据 刷量|scope:file}
+name: update
+
+on:
+  schedule:
+    # 每 6 小时一次。优惠站卖的就是及时度，谁先挂上新优惠谁赢。
+    - cron: "17 */6 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Scrape public feeds
+        run: python scraper.py
+
+      - name: Build static site
+        env:
+          SITE_BASE_URL: ${{ vars.SITE_BASE_URL }}
+        run: python build.py
+
+      - name: Commit fresh data + site
+        run: |
+          git config user.name  "branddeals-bot"
+          git config user.email "branddeals-bot@users.noreply.github.com"
+          git add data/offers.json site
+          if git diff --staged --quiet; then
+            echo "no changes this run"
+          else
+            git commit -m "chore: auto-update offers $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git push
+          fi

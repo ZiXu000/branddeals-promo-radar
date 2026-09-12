@@ -1,0 +1,39 @@
+ILANG
+TYPE: config | PROJECT: branddeals-promo-radar | LANG: zh
+
+::STATE{@SITE, brand:BrandDeals, niche:consumer brand official deals and coupons, domain:branddeals-promo-radar.pages.dev, locale:en-US, currency:USD}
+
+::MODULE{PROVIDERS|title:抓哪几家 这里改了站就变}
+# name | homepage | source | adapter | affiliate
+Glossier | https://www.glossier.com | https://www.glossier.com/products.json?limit=250 | shopify_sale |
+Allbirds | https://www.allbirds.com | https://www.allbirds.com/products.json?limit=250 | shopify_sale |
+Transparent Labs | https://www.transparentlabs.com | https://www.transparentlabs.com/products.json?limit=250 | shopify_sale |
+Ilia | https://iliabeauty.com | https://iliabeauty.com/products.json?limit=250 | shopify_sale |
+Supergoop | https://supergoop.com | https://supergoop.com/products.json?limit=250 | shopify_sale |
+Tower 28 | https://www.tower28beauty.com | https://www.tower28beauty.com/products.json?limit=250 | shopify_sale |
+Gorilla Mind | https://gorillamind.com | https://gorillamind.com/products.json?limit=250 | shopify_sale |
+Bombas | https://bombas.com | https://bombas.com/products.json?limit=250 | shopify_sale |
+Gymshark | https://www.gymshark.com | https://www.gymshark.com/products.json?limit=250 | shopify_sale |
+Legion Athletics | https://legionathletics.com | https://legionathletics.com/products.json?limit=250 | shopify_sale |
+Vuori | https://vuoriclothing.com | https://vuoriclothing.com/sitemap.xml | sitemap_jsonld |
+Curology | https://curology.com | https://curology.com/ | jsonld_offers |
+Dinnerly | https://dinnerly.com | https://dinnerly.com/ | jsonld_offers |
+Blue Apron | https://www.blueapron.com | https://www.blueapron.com/ | jsonld_offers |
+Skillshare | https://www.skillshare.com | https://www.skillshare.com/en/pricing | jsonld_offers |
+Notion | https://www.notion.com | https://www.notion.com/pricing | jsonld_offers |
+Grammarly | https://www.grammarly.com | https://www.grammarly.com/premium | jsonld_offers |
+NordVPN | https://nordvpn.com | https://nordvpn.com/pricing/ | jsonld_offers |
+Hostinger | https://www.hostinger.com | https://www.hostinger.com/pricing | jsonld_offers |
+
+::MODULE{FIELDS|title:每条优惠提取什么}
+title | price | currency | compare_at_price | discount_percent | offer_url | image | valid_until | source_url | fetched_at
+
+::MODULE{BUILD|title:站点渲染规则}
+# 站点标题模板 与 更新频率
+title_template | {brand} — {provider} deals & coupons
+update_hours | 6
+
+::RULE{抓不到 price⇒这条不写 price 字段 也不写进结构化数据 不许拿估的填}
+::RULE{valid_until 已过⇒标记过期或下架 不许留着冒充有效}
+::RULE{源站返回 403/429⇒该家标记 blocked 页面如实写"数据源拒绝抓取" 不许拿别的数顶}
+::BOUNDARY{never:编优惠 编价格 编佣金|scope:permanent}
