@@ -103,7 +103,7 @@ def deal_slug(prov, item):
 # ------------------------------------------------------------- fragments ---
 
 def frag_deal_card(prov, item, base):
-    href = "%s/deal/%s.html" % (base, deal_slug(prov, item))
+    href = "/deal/%s.html" % deal_slug(prov, item)
     img = ('<img src="%s" alt="%s" loading="lazy">' % (esc(item["image"]), esc(item["title"]))
            if item.get("image") else '<div class="ph">no image</div>')
     was = ('<s>%s</s>' % money(item["compare_at_price"])) if item.get("compare_at_price") else ""
@@ -116,7 +116,7 @@ def frag_deal_card(prov, item, base):
 
 
 def frag_item_row(prov, item, base):
-    href = "%s/deal/%s.html" % (base, deal_slug(prov, item))
+    href = "/deal/%s.html" % deal_slug(prov, item)
     was = (' <s>%s</s>' % money(item["compare_at_price"])) if item.get("compare_at_price") else ""
     pct = (' <span class="pct">-%d%%</span>' % item["discount_percent"]
            if item.get("discount_percent") else "")
@@ -166,7 +166,7 @@ def ctx_deal(prov, item, base):
     return {
         "title": esc(item["title"]),
         "provider": esc(prov["name"]),
-        "provider_url": "%s/provider/%s.html" % (base, slug(prov["name"])),
+        "provider_url": "/provider/%s.html" % slug(prov["name"]),
         "price": esc(money(item["price"])),
         "was": esc(money(item["compare_at_price"]) if item.get("compare_at_price") else ""),
         "pct": esc(("-%d%% off" % item["discount_percent"]) if item.get("discount_percent") else ""),
@@ -225,8 +225,8 @@ def ctx_compare(doc, base):
     for p in doc["providers"]:
         items, deals = p.get("items", []), deals_of(p)
         best = deals[0] if deals else None
-        rows.append('<tr><td><a href="%s/provider/%s.html">%s</a></td><td>%s</td><td>%d</td><td>%s</td></tr>'
-                    % (base, slug(p["name"]), esc(p["name"]), esc(p.get("status", "")),
+        rows.append('<tr><td><a href="/provider/%s.html">%s</a></td><td>%s</td><td>%d</td><td>%s</td></tr>'
+                    % (slug(p["name"]), esc(p["name"]), esc(p.get("status", "")),
                        len(items),
                        esc(("-%d%% · %s" % (best["discount_percent"], best["title"][:64]))
                            if best else "—")))
@@ -273,9 +273,9 @@ def main() -> int:
         '<p class="note">No discounted items across tracked brands on this crawl. ' \
         'This page updates automatically every few hours.</p>'
     plist = "".join(
-        '<a class="prow" href="%s/provider/%s.html"><span class="pn">%s</span>'
+        '<a class="prow" href="/provider/%s.html"><span class="pn">%s</span>'
         '<span class="pc">%d offers · %d on sale</span></a>'
-        % (base, slug(p["name"]), esc(p["name"]), len(p.get("items", [])), len(deals_of(p)))
+        % (slug(p["name"]), esc(p["name"]), len(p.get("items", [])), len(deals_of(p)))
         for p in providers)
     ld_index = {"@context": "https://schema.org", "@type": "ItemList",
                 "name": "%s — tracked brands" % brand,
