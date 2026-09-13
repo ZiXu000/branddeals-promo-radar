@@ -1,8 +1,12 @@
 # ILANG
 # TYPE: workflow | ROLE: scheduler | PROJECT: branddeals-promo-radar
-# ::STATE{@CI, runs:scraper.py+build.py, every:6h, commits:data/offers.json+site/}
-# ::RULE{运行时零推理 零API密钥 纯 Python}
+# ::STATE{@CI, job1:update, runs:scraper.py+build.py, every:6h, commits:data/offers.json+site/, secrets:none}
+# ::STATE{@CI, job2:deploy, runs:wrangler pages deploy, needs:update, secrets:CLOUDFLARE_API_TOKEN+CLOUDFLARE_ACCOUNT_ID}
+# ::RULE{运行时零推理 零API密钥 纯 Python ⇒ update 这个 job 一个 secret 都不要}
+# ::RULE{只有 deploy 这个 job 拿 Cloudflare 令牌 两个 job 靠 artifact 传 site/}
+# ::RULE{没有 Cloudflare secret 时 deploy 自动跳过 update 照常跑 站不会因此停更}
 # ::BOUNDARY{never:编数据 刷量|scope:file}
+# ::BOUNDARY{never:把 CLOUDFLARE_API_TOKEN 写进仓库任何文件 只走 GitHub Secrets|scope:file}
 name: update
 
 on:
@@ -10,6 +14,14 @@ on:
     # 每 6 小时一次。优惠站卖的就是及时度，谁先挂上新优惠谁赢。
     - cron: "17 */6 * * *"
   workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths:
+      - "scraper.py"
+      - "build.py"
+      - "templates/**"
+      - ".ilang/site.ilang"
+      - ".github/workflows/update.yml"
 
 permissions:
   contents: write
@@ -19,11 +31,15 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # ---------- job 1: 抓 + 建 + 提交。零 secret。 ----------
   update:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # 要 git push，必须用能写回仓库的凭据
+          persist-credentials: true
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -35,6 +51,7 @@ jobs:
 
       - name: Build static site
         env:
+          # 留空时 build.py 自动回落到 .ilang/site.ilang 里的 domain
           SITE_BASE_URL: ${{ vars.SITE_BASE_URL }}
         run: python build.py
 
@@ -49,3 +66,32 @@ jobs:
             git commit -m "chore: auto-update offers $(date -u +%Y-%m-%dT%H:%M:%SZ)"
             git push
           fi
+
+      - name: Hand site/ to the deploy job
+        uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: site
+          retention-days: 1
+
+  # ---------- job 2: 部署到 Cloudflare Pages。只这里拿令牌。 ----------
+  deploy:
+    needs: update
+    runs-on: ubuntu-latest
+    # 注意：job 自己的 env 在本 job 的 if 里读不到，所以这里直接用 secrets 上下文
+    if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get site/ from the update job
+        uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: site
+
+      - name: Deploy to Cloudflare Pages
+        run: npx wrangler@4 pages deploy site --project-name branddeals-promo-radar --branch main --commit-dirty=true
