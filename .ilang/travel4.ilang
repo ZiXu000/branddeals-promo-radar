@@ -27,9 +27,16 @@ JetBlue | This page lists JetBlue's official sale window only — it is not a fa
 ::MODULE{FIELDS|title:每条优惠提取什么}
 title | price | currency | compare_at_price | discount_percent | offer_url | image | valid_until | source_url | fetched_at
 
+::MODULE{READER_SOURCE|title:页面上来源列给读者看的地址 只许是人能点开看见那条优惠的官方页}
+# 内部台账(PROVIDERS 的 source 列)可以是接口地址, 但那个不许出现在任何读者可见的页面上。
+# 这里配的是"读者看见的出处": 没配的家就直接用它自己抓的那个官方页。
+Carnival Cruise Line | https://www.carnival.com/cruise-deals
+
 ::MODULE{BUILD|title:站点渲染规则}
 title_template | {brand} — {provider} deals & promo codes
-update_hours | 6
+# 实际刷新频率: 本机每天跑一次(tools/refresh_travel.sh), 不是每几小时。
+# 页面上所有"自动更新"的承诺由这个值驱动, 改这里 页上的说法跟着变, 不许出现跟实际不符的承诺。
+update_hours | 24
 detail_pages | all
 
 ::RULE{抓不到 price⇒这条不写 price 字段 也不写进结构化数据 不许拿估的填}
