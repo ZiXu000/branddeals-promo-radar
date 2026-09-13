@@ -47,7 +47,8 @@ RETRIES = 2
 
 def read_config(path: Path) -> dict:
     """解析 I-Lang 配置。任何一行含 '|' 且不以 '::' / '#' 开头 => 数据行。"""
-    cfg = {"site": {}, "providers": [], "fields": [], "build": {}, "notes": {}}
+    cfg = {"site": {}, "providers": [], "fields": [], "build": {}, "notes": {},
+           "reader_source": {}}
     section = None
     for raw in path.read_text(encoding="utf-8").splitlines():
         line = raw.strip()
@@ -79,6 +80,10 @@ def read_config(path: Path) -> dict:
         elif section == "PROVIDER_NOTES" and len(parts) >= 2 and parts[0]:
             # 每家页面上必须如实写的口径。老板要求: 每行带官方出处+复核日期, 不许含糊。
             cfg["notes"][parts[0]] = " | ".join(p for p in parts[1:] if p)
+        elif section == "READER_SOURCE" and len(parts) >= 2 and parts[0]:
+            # 页面上"来源"列给读者看的地址。必须是人点开就能看见那条优惠的官方页。
+            # 抓数用的接口地址留在 internal_source 当内部台账, 不进任何读者可见的页面。
+            cfg["reader_source"][parts[0]] = parts[1]
         elif section == "FIELDS":
             cfg["fields"] = [p for p in parts if p]
         elif section == "BUILD" and len(parts) >= 2:
@@ -991,6 +996,17 @@ def main() -> int:
         if cut:
             meta["note"] = ((meta.get("note") or "") + " | dropped %d expired (%s)"
                             % (len(cut), ", ".join(sorted({c["expired_on"] for c in cut})))).strip(" |")
+
+        # ::RULE{来源列⇒只许指向读者点开就能看见那条优惠的官方页}
+        # ::RULE{官方接口地址 内部台账 配置文件⇒可以留 但不许出现在任何读者可见的页面上}
+        # 抓数用的接口地址(如 carnival 的 /cruisesearch/api/deals)降为 internal_source 内部台账,
+        # 页面上的 source_url 换成配置里 READER_SOURCE 指定的人可读官方页。
+        rs = (cfg.get("reader_source") or {}).get(name)
+        if rs:
+            for it in items:
+                if it.get("source_url") and it["source_url"] != rs:
+                    it["internal_source"] = it["source_url"]
+                it["source_url"] = rs
 
         deals = sum(1 for i in items if i.get("discount_percent"))
         rows.append({**prov, "status": meta.get("status", "ok"),
