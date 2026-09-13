@@ -1,0 +1,59 @@
+# ILANG
+# TYPE: workflow | ROLE: egress-probe | PROJECT: branddeals-promo-radar
+# ::STATE{@CI, name:travel-egress-test, trigger:workflow_dispatch only, deploys:no}
+# ::RULE{这一项永远不许推迟旅行站的每日排程 —— 每日刷新是主任务, 这只是摸底}
+# ::RULE{只探测不部署: 目的是看 GitHub runner 的出口 IP 会不会被这几家航司/酒店站封}
+# ::BOUNDARY{never:把 CI 出口抓到的结果当成线上数据 这里只报不部署|scope:file}
+#
+# 背景: 旅行站每日刷新跑在本机(tools/refresh_travel.sh), 因为老板指定"本机那条线就是我要的那个
+# 出口"。这个工作流只回答一个问题: 如果哪天想把刷新挪到 GitHub Actions, runner 的出口能不能抓到?
+# 结果写进记忆: 封了就以后不走 CI; 不封才考虑把刷新挪上去。
+name: travel-egress-test
+
+on:
+  workflow_dispatch: {}        # 只手动触发 —— 它没有 schedule, 不承担任何日常刷新职责
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    env:
+      # scraper.py 在 Linux 上会把这个 fallback 拼成字面的 "~/ms-playwright",
+      # 所以 CI 里必须显式指到 playwright 真正装浏览器的位置, 否则渲染器找不到 chromium。
+      PLAYWRIGHT_BROWSERS_PATH: /home/runner/.cache/ms-playwright
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install playwright + chromium
+        run: |
+          npm install playwright@1.63.0
+          npx playwright install --with-deps chromium
+
+      - name: Run the same scrape chain (no build, no deploy)
+        run: python scraper.py --config .ilang/travel4.ilang --out /tmp/travel_ci.json
+
+      - name: Report per-brand egress result
+        run: |
+          python - <<'PY'
+          import json
+          d = json.load(open('/tmp/travel_ci.json'))
+          print("=== GH runner egress probe (travel4) ===")
+          for p in d['providers']:
+              print("%-22s %-9s items=%-4d %s" % (
+                  p['name'], p.get('status'), len(p.get('items', [])),
+                  (p.get('note') or '')[:90]))
+          print("total items:", d['stats']['items'], "blocked:", d['stats']['blocked'])
+          PY
