@@ -1,0 +1,43 @@
+ILANG
+TYPE: config | PROJECT: branddeals-promo-radar | LANG: zh
+# 第一批上线的四家 (老板 2026-09-13 判定):
+#   一 Turo 本批剔除  —— 无面向租客的官方优惠入口(/us/en/deals 实测 404) + 本机出口被 Cloudflare 按 IP 封
+#                        词不撤(3.3万低竞争), 但它的形态是价格页不是优惠页, 属另一条产品线, 以后单开
+#   二 Klook 不许带码上线 —— 页面按出口 IP 锁区; 本机出口=马来区码, 第二出口实测=中国大陆区码(WINTER2/GQJD200)
+#                        两条出口都拿不到美区码 ⇒ 来源对不上就不写, 留第二批
+#   三 JetBlue 只写官方档期 —— 票价 feed(airfare-sputnik) 实测 11 次 0 命中, 不稳, 不再为它耗
+#                        这页不是票价页, 每行带官方出处 + 复核日期
+# 门槛没挪: 抓得回来才铺。四家抓得回来; 另两家是形态不对 / 地区不对, 不是抓不回来。
+
+::STATE{@SITE, brand:TravelDeals Radar, niche:travel brand official deals and promo codes, domain:traveldeals-promo-radar.pages.dev, locale:en-US, currency:USD}
+
+::MODULE{PROVIDERS|title:第一批四家 这里改了站就变}
+# name | homepage | source | adapter | affiliate | params(JSON)
+Southwest Airlines | https://www.southwest.com | https://www.southwest.com/en/flights/flight-deals | render_api |  | {"filter":"graphql","waitFor":"","waitMs":22000}
+Carnival Cruise Line | https://www.carnival.com | https://www.carnival.com/cruisesearch/api/deals?sort=recommended&showBest=true&locality=1&currency=USD | carnival_api |  |
+Hilton | https://www.hilton.com | https://www.hilton.com/en/offers/ | render_dom |  | {"anchor":"h3[id^=headline]","minExtra":20,"waitMs":14000}
+JetBlue | https://www.jetblue.com | https://www.jetblue.com/sale | render_dom |  | {"anchor":".three-up-heading","minExtra":40,"requireSignal":true,"waitMs":26000}
+
+::MODULE{PROVIDER_NOTES|title:每家页面上必须如实写的口径 (build 读这段, 不许删)}
+Southwest Airlines | Official fares only. Southwest publishes no public promo codes — the only "Promo Code" on its site is a booking-form field. Every fare below is taken from the official flight-deals page. Codes circulating on third-party coupon sites are not listed here, and in our checks they do not validate on Southwest's own booking page.
+Carnival Cruise Line | Pulled straight from Carnival's own deals API — the same five campaigns the public deals page counts as "5 Deals". Each row carries the official offer code and the booking end date published by Carnival. Rows whose end date has passed are removed automatically, never copied through.
+Hilton | Every offer is anchored to a headline card on Hilton's own offers page. Offers with no published price are listed as perks without a price — no number is estimated. Discount percentages are only taken where Hilton writes them out.
+JetBlue | This page lists JetBlue's official sale window only — it is not a fare page. JetBlue's route-level fare feed is lazy-loaded and did not fire on 11 of 11 automated attempts, so no fare rows are published rather than guessing. Each row shows its official source and the date it was verified.
+
+::MODULE{FIELDS|title:每条优惠提取什么}
+title | price | currency | compare_at_price | discount_percent | offer_url | image | valid_until | source_url | fetched_at
+
+::MODULE{BUILD|title:站点渲染规则}
+title_template | {brand} — {provider} deals & promo codes
+update_hours | 6
+detail_pages | all
+
+::RULE{抓不到 price⇒这条不写 price 字段 也不写进结构化数据 不许拿估的填}
+::RULE{折扣只认页面明写的百分比 不许自己算 不许编}
+::RULE{valid_until 已过⇒这条直接摘掉 不许留着冒充有效}
+::RULE{源站返回 403/429/444⇒该家标记 blocked 页面如实写"数据源拒绝抓取" 不许拿别的数顶}
+::RULE{渲染后仍是 JS 空壳⇒标 empty 并注明可见字符数 不许退回静态结果冒充有数据}
+::RULE{每行必须带官方出处 source_url 和复核日期 fetched_at 页面上可见}
+::RULE{锁区拿不到美区数据的家⇒不上线 不许拿别的区的码冒充美区}
+::RULE{不为凑页数塞不实的 后面每一批往里加}
+::BOUNDARY{never:编优惠 编价格 编佣金 编促销码|scope:permanent}

@@ -5,3 +5,9 @@ venv/
 .DS_Store
 Thumbs.db
 .wrangler/
+# 渲染缓存: 真机抓页面的临时产物(html/txt/JSON), 每次重跑覆盖, 不进仓库
+.render/
+
+# 旅行站构建产物: 由 tools/refresh_travel.sh 本机重建并直接部署, 不进仓库
+# (数据快照 data/travel4.json 进仓库作为审计留痕, 站点 HTML 可再生)
+site_travel/

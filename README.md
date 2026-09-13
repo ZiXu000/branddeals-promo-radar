@@ -4,9 +4,35 @@ Auto-updating tracker of **official** deals and coupon pages from consumer brand
 (meal kits, beauty, apparel, supplements, software subscriptions). Prices are pulled
 from each brand's own public product feed or official page — never invented.
 
-- **Live site:** https://branddeals-promo-radar.pages.dev
-- **Data:** [`data/offers.json`](data/offers.json) — rewritten on every crawl
-- **Site rules:** [`.ilang/site.ilang`](.ilang/site.ilang)
+- **Live site (consumer brands):** https://branddeals-promo-radar.pages.dev
+- **Live site (travel batch 1):** https://traveldeals-promo-radar.pages.dev
+- **Data:** [`data/offers.json`](data/offers.json), [`data/travel4.json`](data/travel4.json) — rewritten on every crawl
+- **Site rules:** [`.ilang/site.ilang`](.ilang/site.ilang), [`.ilang/travel4.ilang`](.ilang/travel4.ilang)
+
+## Travel batch 1 (Southwest · Carnival · Hilton · JetBlue)
+
+Four brands that the pipeline can reliably pull from, per the 2026-09-13 review:
+
+- **Southwest** — 32 official one-way fares ($59–$195) from the flight-deals page GraphQL feed.
+  No public promo codes exist; third-party codes are never listed.
+- **Carnival** — 5 campaigns straight from Carnival's own deals API (matches the page's "5 Deals").
+- **Hilton** — 14 offers anchored to headline cards on the official offers page.
+- **JetBlue** — the official sale window only ("Up to 50% off flights", dated). Its fare feed is
+  lazy-loaded and unstable (0 hits in 11 attempts), so no fares are published rather than guessed.
+
+Not in this batch: **Klook** (page geo-locks by egress IP — can't get US codes honestly) and
+**Turo** (no renter-facing deals page exists; egress IP is Cloudflare-blocked). Both are deferred,
+not dropped.
+
+Every travel row shows its official source and verification date. Expired rows are cut
+automatically (`valid_until` in the past ⇒ removed, never copied through).
+
+**Refresh runs on this machine only** — the travel sources are rendered with Playwright and the
+egress IP matters (the boss's chosen line). Run:
+
+```bash
+bash tools/refresh_travel.sh   # scrape -> build -> deploy -> commit snapshot
+```
 
 ## How it works
 

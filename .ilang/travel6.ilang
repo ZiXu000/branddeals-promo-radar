@@ -1,0 +1,37 @@
+ILANG
+TYPE: config | PROJECT: branddeals-promo-radar | LANG: zh
+# 旅行批次的六家。独立配置, 不进线上站, 只用于验证管线渲不渲染 JS。
+# 每家的入口/适配器都是 2026-09-13 实测过的:
+#   Southwest  真票价在页面 GraphQL 响应里      -> render_api(等 graphql)
+#   JetBlue    真票价在 airtrfx grouped-routes -> render_api(等 grouped-routes, 懒加载偶发不到, 如实报)
+#   Carnival   有官方 deals API 直连(5条干净)  -> carnival_api(不渲染)
+#   Hilton     14 张 offer 卡, 稳定锚点 h3     -> render_dom
+#   Klook      3 张 coupon 卡(其余 JS 商品网格)-> render_dom; 注意: 页面按出口 IP 锁区, 风险已记
+#   Turo       Cloudflare 403 拦 IP, 无 deals 入口 -> render_api(会如实报 blocked)
+# 第6列 params 是 JSON, 给渲染类适配器传选择器/等待串。
+
+::STATE{@SITE, brand:TravelDeals, niche:travel brand official deals and fares, domain:none, locale:en-US, currency:USD}
+
+::MODULE{PROVIDERS|title:抓哪几家 这里改了站就变}
+# name | homepage | source | adapter | affiliate | params(JSON)
+Southwest Airlines | https://www.southwest.com | https://www.southwest.com/en/flights/flight-deals | render_api |  | {"filter":"graphql","waitFor":"","waitMs":22000}
+JetBlue | https://www.jetblue.com | https://www.jetblue.com/sale | render_dom |  | {"anchor":".three-up-heading","minExtra":40,"requireSignal":true,"fareFilter":"airtrfx.com","waitMs":26000}
+Carnival Cruise Line | https://www.carnival.com | https://www.carnival.com/cruisesearch/api/deals?sort=recommended&showBest=true&locality=1&currency=USD | carnival_api |  |
+Hilton | https://www.hilton.com | https://www.hilton.com/en/offers/ | render_dom |  | {"anchor":"h3[id^=headline]","minExtra":20,"waitMs":14000}
+Klook | https://www.klook.com | https://www.klook.com/en-US/deals/ | render_dom |  | {"anchor":".one-coupon-item","title":".desc-small","minExtra":9999,"waitMs":14000}
+Turo | https://turo.com | https://turo.com/us/en/car-rental/united-states/las-vegas-nv | render_api |  | {"filter":"","waitFor":"","waitMs":16000}
+
+::MODULE{FIELDS|title:每条优惠提取什么}
+title | price | currency | compare_at_price | discount_percent | offer_url | image | valid_until | source_url | fetched_at
+
+::MODULE{BUILD|title:站点渲染规则}
+title_template | {brand} — {provider} deals & fares
+update_hours | 6
+
+::RULE{抓不到 price⇒这条不写 price 字段 也不写进结构化数据 不许拿估的填}
+::RULE{折扣只认页面明写的百分比 不许自己算 不许编}
+::RULE{valid_until 已过⇒这条直接摘掉 不许留着冒充有效 Carnival 实测挂着已到期档期}
+::RULE{源站返回 403/429/444⇒该家标记 blocked 如实写"数据源拒绝抓取" 不许拿别的数顶}
+::RULE{渲染后仍是 JS 空壳⇒标 empty 并注明可见字符数 不许退回静态结果冒充有数据}
+::RULE{JetBlue 票价 feed 懒加载偶发不到⇒如实报 empty 并注明, 不拿上一次缓存顶}
+::BOUNDARY{never:编优惠 编价格 编佣金|scope:permanent}
