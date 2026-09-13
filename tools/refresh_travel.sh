@@ -31,6 +31,13 @@ if git diff --cached --quiet; then
   echo "  no changes this run"
 else
   git commit -m "chore(travel): refresh travel4 $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-  git push
+  # push 容错: 部署(wrangler)已经完成, 即使本机没配 git 凭据也不该让脚本在
+  # 部署成功后报错退出(set -e 下 if 条件里的命令失败不触发退出)。
+  # 配好 credential.helper store 后这里会正常推上去, 审计快照才进远程。
+  if git push; then
+    echo "  pushed snapshot to origin/main"
+  else
+    echo "  WARN: git push failed (no stored credentials?). Deploy is done; commit stays local."
+  fi
 fi
 echo "done -> https://traveldeals-promo-radar.pages.dev/"
