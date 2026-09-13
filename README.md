@@ -11,9 +11,11 @@ from each brand's own public product feed or official page — never invented.
 ## How it works
 
 ```
-scraper.py   → fetch public feeds / official pages  → data/offers.json
-build.py     → render static site                   → site/
-.github/workflows/update.yml → cron every 6h: scrape + build + commit
+job update (no secrets)                     job deploy (needs CF token)
+  scraper.py   → data/offers.json  ──┐
+  build.py     → site/               ├─ artifact ─→ wrangler pages deploy → pages.dev
+  git commit + push  ────────────────┘
+  .github/workflows/update.yml → cron every 6h, and on push to main
 ```
 
 Zero servers. Zero API keys. Zero runtime inference. Pure Python standard library.
@@ -36,15 +38,34 @@ Name | https://homepage | https://source-feed-or-page | adapter | affiliate-url
 ```
 
 Adapters available: `shopify_sale` (public `/products.json`), `jsonld_offers`
-(JSON-LD `Product`/`Offer` on an official page). `scraper.py` and `build.py`
-both read this file; there is no second hard-coded list anywhere.
+(JSON-LD `Product`/`Offer` on an official page), `sitemap_jsonld` (walk the
+official sitemap, then read JSON-LD off each product page). `scraper.py` and
+`build.py` both read this file; there is no second hard-coded list anywhere.
 
 ## Deploy on Cloudflare Pages
 
-1. Connect the repo in Cloudflare Pages.
-2. Build command: `python build.py`
-3. Build output directory: `site`
-4. (Optional) set env var `SITE_BASE_URL` to your custom domain.
+The `deploy` job in `update.yml` publishes `site/` with
+`wrangler pages deploy` on every run, so there is nothing to connect by hand.
+It needs two repository secrets:
+
+- `CLOUDFLARE_API_TOKEN` — must include **Account → Cloudflare Pages → Edit**
+- `CLOUDFLARE_ACCOUNT_ID`
+
+If the token is absent the deploy step skips itself and the scrape/build/commit
+half still runs, so the repo never stops updating.
+
+Two things worth knowing if you set this up again from scratch:
+
+- `wrangler pages project create` and `pages project list` both call
+  `/memberships` first. A token without `User → Memberships → Read` makes
+  wrangler print `Unable to get membership roles` and then stop silently with
+  exit code 0 — it looks like a permissions problem but nothing is logged.
+  Create the project with the API instead:
+  `POST /accounts/{id}/pages/projects` with `{"name": "...", "production_branch": "main"}`.
+  `wrangler pages deploy` does *not* check memberships and works fine.
+- A freshly created deployment URL can return an empty body or refuse the
+  connection for a few minutes while it propagates. Do not treat that as a
+  failed deploy; re-check before retrying.
 
 ## Ground rules
 
