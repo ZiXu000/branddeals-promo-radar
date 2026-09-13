@@ -450,7 +450,7 @@ def main() -> int:
         "jsonld": jsonld(ld_index)})
     niche = doc["site"].get("niche", "consumer brand official deals and coupons")
     (OUT / "index.html").write_text(wrap(
-        idx_inner, "%s — official %s" % (brand, niche),
+        idx_inner, "%s — %s" % (brand, niche),
         "Auto-updating tracker of official deals from %d travel brands. "
         "Every fare and promo code is pulled from the brand's own public feed or "
         "official page — nothing is estimated, nothing is copied from third parties."
