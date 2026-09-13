@@ -11,3 +11,6 @@ Thumbs.db
 # 旅行站构建产物: 由 tools/refresh_travel.sh 本机重建并直接部署, 不进仓库
 # (数据快照 data/travel4.json 进仓库作为审计留痕, 站点 HTML 可再生)
 site_travel/
+
+# 刷新日志: 每次运行的输出(含失败与 0 条留痕), 运行产物不进仓库
+logs/
