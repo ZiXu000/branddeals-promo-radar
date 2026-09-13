@@ -392,13 +392,34 @@ def main() -> int:
     providers = doc["providers"]
     # detail_pages=all => 旅行站(票价行也各一页); 默认 deals => 维持线上站原样。
     mode = doc["build"].get("detail_pages", "deals")
+    # ::RULE{刷新频率等于每天一次⇒不是每几小时 页上的承诺必须跟这个频率一致}
+    # 页面上每一句"自动更新"都由配置里的 update_hours 驱动, 不许写跟实际不符的承诺:
+    #   消费站 = GH Actions cron 每 6h      -> every few hours / auto-updated
+    #   旅行站 = 本机每天一次(refresh_travel.sh) -> once a day / updated daily
+    hours = int(doc["build"].get("update_hours") or 6)
+    FREQ = ({"badge": "updated daily", "tracked": "tracked daily",
+             "rebuild": "This page is rebuilt once a day.",
+             "site": "This site is re-checked once a day.",
+             "prov": "refreshed daily"} if hours >= 20 else
+            {"badge": "auto-updated", "tracked": "tracked automatically",
+             "rebuild": "This page rebuilds itself every few hours.",
+             "site": "This site updates itself automatically.",
+             "prov": "refreshed automatically"})
 
-    if OUT.exists():
-        shutil.rmtree(OUT)
+    # 不做整目录 rmtree: 实测一次删 50+ 个文件会被本机 safe-delete 拦下 -> build 直接失败,
+    # 而部署照样"成功"(传 0 个新文件 = 线上还是旧内容)。最危险的一类失败: 看着绿其实没更新。
+    # 改成就地覆盖重写, 最后只删"这次没生成"的陈旧页面(通常 0~几个), 躲开批量删除阈值。
     for d in ("assets", "provider", "deal"):
-        (OUT / d).mkdir(parents=True)
+        (OUT / d).mkdir(parents=True, exist_ok=True)
+    written = set()
 
-    (OUT / "assets" / "style.css").write_text(CSS.strip(), encoding="utf-8")
+    def w(rel: str, text: str) -> None:
+        p = OUT / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text, encoding="utf-8")
+        written.add(p.resolve())
+
+    w("assets/style.css", CSS.strip())
 
     t_base = (TPL / "base.html").read_text(encoding="utf-8")
     t_idx = (TPL / "index.html").read_text(encoding="utf-8")
@@ -411,6 +432,7 @@ def main() -> int:
             "inner": inner, "title": esc(title), "desc": esc(desc),
             "canonical": esc(canonical), "base": base, "brand": esc(brand),
             "og_type": og, "generated": esc(doc["generated_at"]),
+            "freq_badge": esc(FREQ["badge"]), "site_freq": esc(FREQ["site"]),
         })
 
     # ---- index
@@ -428,9 +450,10 @@ def main() -> int:
                            key=lambda x: -x[1]["discount_percent"])
         cards = "".join(frag_deal_card(p, i, base) for p, i in all_deals[:12])
         head_h2 = "Biggest discounts right now"
-    cards = cards or \
-        '<p class="note">No discounted items across tracked brands on this crawl. ' \
-        'This page updates automatically every few hours.</p>'
+    # 同一类缺陷: 这句也是"更新频率"的承诺, 必须跟实际频率一致
+    cards = cards or (
+        '<p class="note">No discounted items across tracked brands on this crawl. '
+        + esc(FREQ["rebuild"]) + '</p>')
     plist = "".join(
         '<a class="prow" href="/provider/%s.html"><span class="pn">%s</span>'
         '<span class="pc">%d offers · %d on sale</span></a>'
@@ -443,41 +466,46 @@ def main() -> int:
                                     for n, p in enumerate(providers)]}
     now = datetime.now(timezone.utc)
     idx_inner = render(t_idx, {
+        # brand 以前没传进首页上下文, h1 渲染成 " — official brand deals..." 品牌名是空的
+        # (消费站线上也是这个毛病)。h1 是要紧位置, 补上。
+        "brand": esc(brand),
         "cards": cards, "provider_list": plist, "head_h2": head_h2,
         "stats": "%d brands · %d offers · %d on sale"
                  % (len(providers), doc["stats"]["items"], doc["stats"]["deals"]),
         "month": "%s %d" % (MONTHS[now.month - 1], now.year),
+        "tracked_phrase": esc(FREQ["tracked"]),
+        "rebuild_phrase": esc(FREQ["rebuild"]),
         "jsonld": jsonld(ld_index)})
     niche = doc["site"].get("niche", "consumer brand official deals and coupons")
-    (OUT / "index.html").write_text(wrap(
+    w("index.html", wrap(
         idx_inner, "%s — %s" % (brand, niche),
         "Auto-updating tracker of official deals from %d travel brands. "
         "Every fare and promo code is pulled from the brand's own public feed or "
         "official page — nothing is estimated, nothing is copied from third parties."
         % len(providers),
-        base + "/", "website"), encoding="utf-8")
+        base + "/", "website"))
 
     # ---- provider + deal pages
     for p in providers:
         c = ctx_provider(p, base, mode)
-        (OUT / "provider" / ("%s.html" % slug(p["name"]))).write_text(wrap(
+        w("provider/%s.html" % slug(p["name"]), wrap(
             render(t_prov, c), "%s deals & coupons — %s" % (p["name"], brand),
-            "Live offers and discounts from %s, refreshed automatically." % p["name"],
-            c["canonical"], "website"), encoding="utf-8")
+            "Live offers and discounts from %s, %s." % (p["name"], FREQ["prov"]),
+            c["canonical"], "website"))
         for i in detail_items_of(p, mode):
             d = ctx_deal(p, i, base)
             desc = ("%s from %s at %s" % (i["title"], p["name"], money(i["price"]))).strip() \
                 if i.get("price") else \
                 ("%s — official offer from %s" % (i["title"], p["name"]))
-            (OUT / "deal" / ("%s.html" % deal_slug(p, i))).write_text(wrap(
+            w("deal/%s.html" % deal_slug(p, i), wrap(
                 render(t_deal, d), "%s — %s" % (i["title"], p["name"]),
-                desc, d["canonical"], "product"), encoding="utf-8")
+                desc, d["canonical"], "product"))
 
     # ---- compare
     cc = ctx_compare(doc, base)
-    (OUT / "compare.html").write_text(wrap(
+    w("compare.html", wrap(
         render(t_cmp, cc), "Compare tracked brands", "Coverage and best discounts per brand.",
-        cc["canonical"], "website"), encoding="utf-8")
+        cc["canonical"], "website"))
 
     # ---- sitemap + robots
     urls = [("", doc["generated_at"]), ("compare.html", doc["generated_at"])]
@@ -490,9 +518,16 @@ def main() -> int:
     sm += ["  <url><loc>%s/%s</loc><lastmod>%s</lastmod></url>" % (base, u, lm[:10])
            for u, lm in urls]
     sm.append("</urlset>")
-    (OUT / "sitemap.xml").write_text("\n".join(sm), encoding="utf-8")
-    (OUT / "robots.txt").write_text(
-        "User-agent: *\nAllow: /\nSitemap: %s/sitemap.xml\n" % base, encoding="utf-8")
+    w("sitemap.xml", "\n".join(sm))
+    w("robots.txt", "User-agent: *\nAllow: /\nSitemap: %s/sitemap.xml\n" % base)
+
+    # 删掉这次没生成的旧页面(优惠到期后那条详情页), 免得陈旧/过期内容长期滞留线上。
+    # 只删这几个陈旧文件, 不做整目录删除 —— 躲开本机 safe-delete 的批量阈值。
+    stale = [p for p in OUT.rglob("*.html") if p.resolve() not in written]
+    for p in stale:
+        p.unlink()
+    if stale:
+        print("  removed %d stale page(s) no longer in this crawl" % len(stale))
 
     n_html = len(list(OUT.rglob("*.html")))
     print("built site -> %s" % OUT)
