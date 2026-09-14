@@ -153,7 +153,10 @@ jobs:
           fi
           for i in 1 2 3; do
             git fetch -q origin main
-            git reset --soft origin/main
+            # 必须是 --mixed(索引对齐 origin/main, 工作区不动)。
+            # --soft 只挪 HEAD 不动索引, 于是新提交的树还是"checkout 时那个旧提交"的树,
+            # 会把 origin/main 上别人新加的文件当成删除 —— 踩过, 见 2026-09-14 记录。
+            git reset --mixed origin/main
             add_all
             git commit -q -m "chore(travel): run $DATE deployed=$DEP" || true
             if git push -q; then
