@@ -101,7 +101,14 @@ jobs:
         run: |
           git config user.name  "branddeals-bot"
           git config user.email "branddeals-bot@users.noreply.github.com"
-          git add -f logs/
+          # 状态文件必须跟着记录一起提交 —— 它是"连续几次抓不到"的账本, 写在 job 1,
+          # 而 job 2 是全新 checkout 看不到它。不提交的话消费站的连续次数永远攒不起来、
+          # "已知抓不到"那条出口永远触发不了。
+          add_rec() {
+            git add -f logs/
+            if [ -f data/offers.state.json ]; then git add -f data/offers.state.json; fi
+          }
+          add_rec
           if git diff --staged --quiet; then
             echo "记录无变化"
             echo "- 记录已在仓库（本次无新增内容）" >> "$GITHUB_STEP_SUMMARY"
@@ -112,7 +119,7 @@ jobs:
           for i in 1 2 3; do
             git fetch -q origin main
             git reset --soft origin/main
-            git add -f logs/
+            add_rec
             git commit -q -m "chore: run record $(date -u +%F)" || true
             if git push -q; then
               echo "run record pushed (attempt $i)"
