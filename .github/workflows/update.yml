@@ -183,6 +183,15 @@ jobs:
           name: site
           path: site
 
+      # 把 job 1 上传的当天记录取回来 —— 即使 job 1 的记录没推上仓库,
+      # 这里追加的 "deployed:" 那行也是接在同一段记录后面, 不会变成孤零零一行。
+      - name: Get run record from the update job
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: run-record
+          path: logs
+
       - name: Deploy to Cloudflare Pages
         id: deploy
         run: |
@@ -198,33 +207,50 @@ jobs:
             --commit-dirty=true
           echo "deployed=yes" >> "$GITHUB_OUTPUT"
 
+      # ::RULE{没部署的那次⇒当天那段记录里显式写一行 我从外面一拉就看得见 不许让它在外面看起来跟跑完一样}
       # ::RULE{基线只在上一次判为通过之后更新⇒未部署的那一次一个字都不许写进基线}
-      # 放在 job 2 部署成功之后: job 1 只负责抓/记/建/提交数据, 部署成败只有这里知道 ——
-      # 旧写法在 job 1 里就记了基线, 部署失败也挡不住, 闸会因此慢慢失效。
-      - name: 记基线（只在真的部署成功之后）
-        if: steps.deploy.outputs.deployed == 'yes'
+      # 收尾一次搞定: 把"这次到底部署没部署"写进当天记录 -> 只有真部署了才更新基线 -> 一起提交。
+      # if: always(): 部署失败/被跳过时这一步照样跑, 所以"没部署"一定会在记录里留显式一行。
+      - name: 收尾（部署结果写进记录 + 记基线 + 提交）
+        if: always()
+        continue-on-error: true
         run: |
-          python tools/run_record.py baseline data/offers.json data/offers.baseline.json
+          DATE=$(date -u +%F)
+          DEP="${{ steps.deploy.outputs.deployed }}"
+          if [ "$DEP" = "yes" ]; then
+            echo "deployed: yes —— wrangler 已执行并成功，线上已更新" >> "logs/consumer-$DATE.log"
+            echo "- 本次已部署（线上已更新）" >> "$GITHUB_STEP_SUMMARY"
+            python tools/run_record.py baseline data/offers.json data/offers.baseline.json
+            echo "- 基线已更新（本次健康且已部署）" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "deployed: NO —— 本次没有部署，线上仍是旧快照；基线不更新（原因见本段上文：健康判定未过 / build 失败 / 缺 token 之一）" >> "logs/consumer-$DATE.log"
+            echo "- **本次没有部署**（线上仍是旧快照，基线不更新）" >> "$GITHUB_STEP_SUMMARY"
+          fi
           git config user.name  "branddeals-bot"
           git config user.email "branddeals-bot@users.noreply.github.com"
-          git add data/offers.baseline.json
+          add_all() {
+            git add -f logs/
+            if [ -f data/offers.baseline.json ]; then git add -f data/offers.baseline.json; fi
+            if [ -f data/offers.state.json ]; then git add -f data/offers.state.json; fi
+          }
+          add_all
           if git diff --staged --quiet; then
-            echo "基线无变化"
-            echo "- 基线无变化（本次条数与上次通过的一致）" >> "$GITHUB_STEP_SUMMARY"
+            echo "no changes"
+            echo "- 记录已在仓库（本次无新增内容）" >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
           for i in 1 2 3; do
             git fetch -q origin main
             git reset --soft origin/main
-            git add data/offers.baseline.json
-            git commit -q -m "chore: update offers baseline $(date -u +%F)" || true
+            add_all
+            git commit -q -m "chore: consumer run $DATE deployed=$DEP" || true
             if git push -q; then
-              echo "baseline pushed (attempt $i)"
-              echo "- 基线已更新（本次健康且已部署）" >> "$GITHUB_STEP_SUMMARY"
+              echo "pushed (attempt $i)"
+              echo "- 记录已提交到仓库 logs/consumer-$DATE.log" >> "$GITHUB_STEP_SUMMARY"
               exit 0
             fi
             echo "push attempt $i failed, retrying in 5s ..."
             sleep 5
           done
-          echo "::warning::baseline push failed after 3 attempts"
-          echo "- 基线没推上去（部署已完成，下次仍比旧基线）" >> "$GITHUB_STEP_SUMMARY"
+          echo "::warning::push failed after 3 attempts"
+          echo "- **记录没有推上仓库**：今天跑过了，但仓库里看不到 logs/consumer-$DATE.log 这段（run 的 artifact 里仍有）" >> "$GITHUB_STEP_SUMMARY"
