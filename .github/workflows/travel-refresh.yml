@@ -69,12 +69,16 @@ jobs:
             logs/travel-$DATE.log travel4
 
       # 无论上一步成败都要把记录提交上去 —— 失败留痕不能只留在 runner 的临时日志里。
+      # continue-on-error: 记录推不上去是"留痕"这一步的问题, 不该把整条线判死
+      # (站点更新才是主线; 记录没推上去会在 run 里留 ::warning:: 与橙色步骤)。
+      # git add -f: 防 .gitignore 里 logs 被忽略时这一步直接 abort(踩过, 见 2026-09-14 记录)。
       - name: Commit run record（成败都留痕）
         if: always()
+        continue-on-error: true
         run: |
           git config user.name  "branddeals-bot"
           git config user.email "branddeals-bot@users.noreply.github.com"
-          git add logs/
+          git add -f logs/
           if git diff --staged --quiet; then
             echo "记录无变化"
             exit 0
