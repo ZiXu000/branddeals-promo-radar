@@ -1,0 +1,62 @@
+{
+  "brands": {
+    "Glossier": {
+      "miss_streak": 0
+    },
+    "Allbirds": {
+      "miss_streak": 0
+    },
+    "Transparent Labs": {
+      "miss_streak": 0
+    },
+    "Ilia": {
+      "miss_streak": 0
+    },
+    "Supergoop": {
+      "miss_streak": 0
+    },
+    "Tower 28": {
+      "miss_streak": 0
+    },
+    "Gorilla Mind": {
+      "miss_streak": 0
+    },
+    "Bombas": {
+      "miss_streak": 1
+    },
+    "Gymshark": {
+      "miss_streak": 1
+    },
+    "Legion Athletics": {
+      "miss_streak": 1
+    },
+    "Vuori": {
+      "miss_streak": 0
+    },
+    "Curology": {
+      "miss_streak": 1
+    },
+    "Dinnerly": {
+      "miss_streak": 0
+    },
+    "Blue Apron": {
+      "miss_streak": 1
+    },
+    "Skillshare": {
+      "miss_streak": 0
+    },
+    "Notion": {
+      "miss_streak": 0
+    },
+    "Grammarly": {
+      "miss_streak": 0
+    },
+    "NordVPN": {
+      "miss_streak": 1
+    },
+    "Hostinger": {
+      "miss_streak": 0
+    }
+  },
+  "updated": "2026-09-14T06:51:52Z"
+}
