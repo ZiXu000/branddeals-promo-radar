@@ -58,3 +58,33 @@ verdict: ALL_OK -> deploy
 total=753  blocked=4  expired_dropped=0
 baseline=753 (2026-09-14)  shrink_floor=376  -> 本次 753 >= 376, 通过
 verdict: ALL_OK -> deploy
+
+=== consumer run 2026-09-14T06:13:37Z ===
+  Glossier               ok       items=112  expired_cut=0   
+  Allbirds               ok       items=250  expired_cut=0   
+  Transparent Labs       ok       items=71   expired_cut=0   
+  Ilia                   ok       items=80   expired_cut=0   
+  Supergoop              ok       items=88   expired_cut=0   
+  Tower 28               ok       items=63   expired_cut=0   
+  Gorilla Mind           ok       items=53   expired_cut=0   
+  Bombas                 blocked  items=0    expired_cut=0   HTTP 429
+      <-- ZERO: Bombas 本次抓到 0 条（此前也无条，非新增异常）
+  Gymshark               blocked  items=0    expired_cut=0   HTTP 403
+      <-- ZERO: Gymshark 本次抓到 0 条（此前也无条，非新增异常）
+  Legion Athletics       error    items=0    expired_cut=0   HTTP 404
+      <-- ZERO: Legion Athletics 本次抓到 0 条（此前也无条，非新增异常）
+  Vuori                  ok       items=15   expired_cut=0   
+  Curology               empty    items=0    expired_cut=0   no price found in page text
+      <-- ZERO: Curology 本次抓到 0 条（此前也无条，非新增异常）
+  Dinnerly               ok       items=1    expired_cut=0   
+  Blue Apron             blocked  items=0    expired_cut=0   HTTP 403
+      <-- ZERO: Blue Apron 本次抓到 0 条（此前也无条，非新增异常）
+  Skillshare             ok       items=2    expired_cut=0   
+  Notion                 ok       items=7    expired_cut=0   
+  Grammarly              ok       items=4    expired_cut=0   
+  NordVPN                blocked  items=0    expired_cut=0   HTTP 403
+      <-- ZERO: NordVPN 本次抓到 0 条（此前也无条，非新增异常）
+  Hostinger              ok       items=7    expired_cut=0   
+total=753  blocked=4  expired_dropped=0
+baseline=753 (2026-09-14)  shrink_floor=376  -> 本次 753 >= 376, 通过
+verdict: ALL_OK -> deploy
