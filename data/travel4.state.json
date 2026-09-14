@@ -1,0 +1,17 @@
+{
+  "brands": {
+    "Southwest Airlines": {
+      "miss_streak": 0
+    },
+    "Carnival Cruise Line": {
+      "miss_streak": 0
+    },
+    "Hilton": {
+      "miss_streak": 0
+    },
+    "JetBlue": {
+      "miss_streak": 0
+    }
+  },
+  "updated": "2026-09-14T06:41:21Z"
+}
