@@ -121,7 +121,7 @@ baseline=753 (2026-09-14)  shrink_floor=376  -> 本次 753 >= 376, 通过
 verdict: ALL_OK -> deploy
 deployed: yes —— wrangler 已执行并成功，线上已更新
 
-=== consumer run 2026-09-14T06:51:52Z ===
+=== consumer run 2026-09-14T06:52:46Z ===
   Glossier               ok       items=112  expired_cut=0   
   Allbirds               ok       items=250  expired_cut=0   
   Transparent Labs       ok       items=71   expired_cut=0   
@@ -150,4 +150,3 @@ deployed: yes —— wrangler 已执行并成功，线上已更新
 total=753  blocked=4  expired_dropped=0
 baseline=753 (2026-09-14)  shrink_floor=376  -> 本次 753 >= 376, 通过
 verdict: ALL_OK -> deploy
-deployed: yes —— wrangler 已执行并成功，线上已更新
