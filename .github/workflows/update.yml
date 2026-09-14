@@ -81,6 +81,16 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
           exit $rc
 
+      # 把当天记录作为 run artifact 上传 —— "今天跑过"最硬的证据: 不依赖 git,
+      # 且能从 Actions API 直接查到(所以"跑过但记录没推上去"与"今天没跑"分得开)。
+      - name: Upload run record as artifact（跑过的硬证据，与 git 无关）
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-record
+          path: logs/
+          retention-days: 30
+
       # 无论上一步成败都要把记录提交上去 —— 失败留痕不能只留在 runner 的临时日志里。
       # continue-on-error: 记录推不上去是"留痕"这一步的问题, 不该把整条线判死
       # (站点更新才是主线; 记录没推上去会在 run 里留 ::warning:: 与橙色步骤)。
