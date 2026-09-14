@@ -68,7 +68,18 @@ jobs:
           DATE=$(date -u +%F)
           python tools/run_record.py record \
             data/offers.json data/offers.baseline.json \
-            logs/consumer-$DATE.log consumer
+            logs/consumer-$DATE.log consumer | tee /tmp/rec.txt
+          rc=${PIPESTATUS[0]}
+          # 写进 run 页面的 Job Summary —— "今天跑过"最可靠的外部信号:
+          # 即使后面记录没推上仓库, 这一页也留得下(跑过而记录没上去 与 今天没跑 必须分得开)。
+          {
+            echo "## consumer run $DATE"
+            echo ""
+            echo '```'
+            cat /tmp/rec.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit $rc
 
       # 无论上一步成败都要把记录提交上去 —— 失败留痕不能只留在 runner 的临时日志里。
       # continue-on-error: 记录推不上去是"留痕"这一步的问题, 不该把整条线判死
@@ -83,6 +94,7 @@ jobs:
           git add -f logs/
           if git diff --staged --quiet; then
             echo "记录无变化"
+            echo "- 记录已在仓库（本次无新增内容）" >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
           # 用 fetch + reset --soft 把改动"重放"到最新远程之上 —— 不走 rebase 就不会撞冲突
@@ -94,12 +106,14 @@ jobs:
             git commit -q -m "chore: run record $(date -u +%F)" || true
             if git push -q; then
               echo "run record pushed (attempt $i)"
+              echo "- 记录已提交到仓库 logs/consumer-$(date -u +%F).log" >> "$GITHUB_STEP_SUMMARY"
               exit 0
             fi
             echo "push attempt $i failed, retrying in 5s ..."
             sleep 5
           done
           echo "::warning::run record push failed after 3 attempts"
+          echo "- **记录没有推上仓库**：今天跑过了，但仓库里看不到 logs/consumer-$(date -u +%F).log 这段" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Build static site
         env:
@@ -107,14 +121,13 @@ jobs:
           SITE_BASE_URL: ${{ vars.SITE_BASE_URL }}
         run: python build.py
 
-      - name: 记基线 + Commit fresh data + site
+      # 这里只提交数据与站点; 基线的更新挪到 job 2 部署成功之后(见文件末尾) ——
+      # 基线是下限闸/回归闸的对照, 绝不能被一次没部署的运行覆盖。
+      - name: Commit fresh data + site
         run: |
-          # 基线代表"上一次健康抓回来的条数", 是下次下限闸的对照 —— 只有这次健康(闸放行)
-          # 才会走到这一步, 所以在这里记是安全的。
-          python tools/run_record.py baseline data/offers.json data/offers.baseline.json
           git config user.name  "branddeals-bot"
           git config user.email "branddeals-bot@users.noreply.github.com"
-          git add data/offers.json data/offers.baseline.json site
+          git add data/offers.json site
           if git diff --staged --quiet; then
             echo "no changes this run"
             exit 0
@@ -122,7 +135,7 @@ jobs:
           for i in 1 2 3; do
             git fetch -q origin main
             git reset --soft origin/main
-            git add data/offers.json data/offers.baseline.json site
+            git add data/offers.json site
             git commit -q -m "chore: auto-update offers $(date -u +%Y-%m-%dT%H:%M:%SZ)" || true
             if git push -q; then
               echo "snapshot pushed (attempt $i)"
@@ -161,12 +174,47 @@ jobs:
           path: site
 
       - name: Deploy to Cloudflare Pages
+        id: deploy
         run: |
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
-            echo "CLOUDFLARE_API_TOKEN 未配置，跳过部署（抓取与提交仍已完成）"
+            echo "deployed=no" >> "$GITHUB_OUTPUT"
+            echo "::warning::CLOUDFLARE_API_TOKEN 未配置，跳过部署 —— 本次不更新基线"
+            echo "- **本次未部署**（缺 CLOUDFLARE_API_TOKEN）：线上留旧快照，基线不更新" >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
           npx wrangler@4 pages deploy site \
             --project-name branddeals-promo-radar \
             --branch main \
             --commit-dirty=true
+          echo "deployed=yes" >> "$GITHUB_OUTPUT"
+
+      # ::RULE{基线只在上一次判为通过之后更新⇒未部署的那一次一个字都不许写进基线}
+      # 放在 job 2 部署成功之后: job 1 只负责抓/记/建/提交数据, 部署成败只有这里知道 ——
+      # 旧写法在 job 1 里就记了基线, 部署失败也挡不住, 闸会因此慢慢失效。
+      - name: 记基线（只在真的部署成功之后）
+        if: steps.deploy.outputs.deployed == 'yes'
+        run: |
+          python tools/run_record.py baseline data/offers.json data/offers.baseline.json
+          git config user.name  "branddeals-bot"
+          git config user.email "branddeals-bot@users.noreply.github.com"
+          git add data/offers.baseline.json
+          if git diff --staged --quiet; then
+            echo "基线无变化"
+            echo "- 基线无变化（本次条数与上次通过的一致）" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          for i in 1 2 3; do
+            git fetch -q origin main
+            git reset --soft origin/main
+            git add data/offers.baseline.json
+            git commit -q -m "chore: update offers baseline $(date -u +%F)" || true
+            if git push -q; then
+              echo "baseline pushed (attempt $i)"
+              echo "- 基线已更新（本次健康且已部署）" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            echo "push attempt $i failed, retrying in 5s ..."
+            sleep 5
+          done
+          echo "::warning::baseline push failed after 3 attempts"
+          echo "- 基线没推上去（部署已完成，下次仍比旧基线）" >> "$GITHUB_STEP_SUMMARY"
