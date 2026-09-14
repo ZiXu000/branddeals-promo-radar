@@ -88,3 +88,4 @@ verdict: ALL_OK -> deploy
 total=753  blocked=4  expired_dropped=0
 baseline=753 (2026-09-14)  shrink_floor=376  -> 本次 753 >= 376, 通过
 verdict: ALL_OK -> deploy
+deployed: yes —— wrangler 已执行并成功，线上已更新
