@@ -239,10 +239,12 @@ jobs:
           fi
           git config user.name  "branddeals-bot"
           git config user.email "branddeals-bot@users.noreply.github.com"
+          # 注意: 这里**不许**再 add data/offers.state.json ——
+          # 那个文件归 job 1 写并提交, 而 job 2 的 checkout 是派发时那个 sha,
+          # 手里的状态文件是旧的; 一 add 就会把 job 1 刚提交的新值盖回旧值(踩过)。
           add_all() {
             git add -f logs/
             if [ -f data/offers.baseline.json ]; then git add -f data/offers.baseline.json; fi
-            if [ -f data/offers.state.json ]; then git add -f data/offers.state.json; fi
           }
           add_all
           if git diff --staged --quiet; then
