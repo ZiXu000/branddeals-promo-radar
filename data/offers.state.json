@@ -22,25 +22,35 @@
       "miss_streak": 0
     },
     "Bombas": {
-      "miss_streak": 2
+      "miss_streak": 3,
+      "known_missing_since": "2026-09-14",
+      "reason": "连续 3 次抓到 0 条/失败"
     },
     "Gymshark": {
-      "miss_streak": 2
+      "miss_streak": 3,
+      "known_missing_since": "2026-09-14",
+      "reason": "连续 3 次抓到 0 条/失败"
     },
     "Legion Athletics": {
-      "miss_streak": 2
+      "miss_streak": 3,
+      "known_missing_since": "2026-09-14",
+      "reason": "连续 3 次抓到 0 条/失败"
     },
     "Vuori": {
       "miss_streak": 0
     },
     "Curology": {
-      "miss_streak": 2
+      "miss_streak": 3,
+      "known_missing_since": "2026-09-14",
+      "reason": "连续 3 次抓到 0 条/失败"
     },
     "Dinnerly": {
       "miss_streak": 0
     },
     "Blue Apron": {
-      "miss_streak": 2
+      "miss_streak": 3,
+      "known_missing_since": "2026-09-14",
+      "reason": "连续 3 次抓到 0 条/失败"
     },
     "Skillshare": {
       "miss_streak": 0
@@ -52,11 +62,13 @@
       "miss_streak": 0
     },
     "NordVPN": {
-      "miss_streak": 2
+      "miss_streak": 3,
+      "known_missing_since": "2026-09-14",
+      "reason": "连续 3 次抓到 0 条/失败"
     },
     "Hostinger": {
       "miss_streak": 0
     }
   },
-  "updated": "2026-09-14T06:57:33Z"
+  "updated": "2026-09-14T06:59:24Z"
 }
