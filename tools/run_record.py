@@ -1,38 +1,44 @@
 #!/usr/bin/env python3
 # ILANG
 # TYPE: tool | ROLE: run-record | PROJECT: branddeals-promo-radar
-# ::STATE{@REC, in:data/<site>.json + data/<site>.baseline.json, out:logs/<site>-<date>.log}
+# ::STATE{@REC, in:data/<site>.json + <site>.baseline.json + <site>.state.json, out:logs/<site>-<date>.log}
 # ::RULE{运行记录⇒写进固定路径的带日期文件 全成功 有失败 某家 0 条 三种状态都写}
 # ::RULE{某一家抓到 0 条 或那一家请求失败⇒当天记录里必须有显式的一行 点出是哪一家 不许静默跳过}
 # ::RULE{本次抓回来的总条数比上一次成功少一半以上⇒视为这次没抓成 不部署 线上留旧快照 留痕}
+# ::RULE{某一家连着几次都抓不到⇒当它跟消费站那 6 家一样标成已知抓不到 从闸里摘出去 其余家照跑}
+# ::RULE{标成已知抓不到⇒留一行痕 写清哪天标的 依据是什么}
+# ::RULE{摘出去不是删掉⇒它哪天抓回来了 要能自己回到闸里}
 # ::RULE{判据是条数不是流程状态⇒run 绿只说明流程跑完 不说明抓到了东西}
-# ::RULE{同一个坑按类核⇒旅行站与消费站用同一套判据}
 # ::BOUNDARY{never:把抓不到写成没有优惠|scope:permanent}
 # ::BOUNDARY{never:用上一次的快照冒充今天刷新过|scope:permanent}
+# ::BOUNDARY{never:靠人去改基线来放行|scope:permanent}
 """写当天运行记录 + 判健康。退出码: 0=ALL_OK(可部署), 1=不健康(不许部署)。
 
 用法:
   python tools/run_record.py record   <data.json> <baseline.json> <logfile> [site]
   python tools/run_record.py baseline <data.json> <baseline.json>            # 成功部署后记基线
 
-三种状态都会写进记录:
-  全成功          verdict: ALL_OK
-  某家 0 条/失败   verdict: BRAND_REGRESSION（点名是哪一家）或 EMPTY_BRAND
-  缩水一半以上     verdict: SHRINK_GUARD（不部署, 线上留旧快照）
+三种状态都写进记录: ALL_OK / BRAND_REGRESSION(某家上次有条这次0条或失败, 点名) /
+SHRINK_GUARD(总条数不足上次成功一半)。
 
-为什么按"上次有没有条"判异常而不是"只要 0 条就报警":
-  消费站那批里有几家是长期被源站拒的(403/404), 它们本来常年 0 条 ——
-  若"任何一家 0 条都不部署", 消费站会被永久冻住。所以判据是**回归**:
-  "上次抓到过, 这次变 0/失败"才算异常。旅行站四家本来都有条, 所以任何一家归零都会被抓到。
+出口(2026-09-14 加): 某一家连续 MISS_THRESHOLD 次都抓不到 -> 标成"已知抓不到", 从闸里摘出去,
+其余家照常判。它哪天抓回来了, 自动解除标记、回到闸里 —— 不需要人去改基线。
+连续次数记在 <site>.state.json(每次运行都更新, 与"只有部署成功才更新"的基线分开)。
 """
 import json
 import os
 import sys
 from datetime import datetime, timezone
 
+MISS_THRESHOLD = 3      # 连续几次抓不到 -> 标成已知抓不到、从闸里摘出
+
 
 def now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def today() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
 
 def load(path):
@@ -49,6 +55,12 @@ def append_record(log_path: str, lines: list) -> None:
         os.makedirs(d, exist_ok=True)
     with open(log_path, "a", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
+
+
+def state_path_for(baseline_path: str) -> str:
+    if baseline_path.endswith(".baseline.json"):
+        return baseline_path[: -len(".baseline.json")] + ".state.json"
+    return baseline_path + ".state.json"
 
 
 def brand_counts(doc) -> dict:
@@ -75,12 +87,15 @@ def main() -> int:
 
     data_path, base_path, log_path = sys.argv[2], sys.argv[3], sys.argv[4]
     site = sys.argv[5] if len(sys.argv) > 5 else "site"
+    st_path = state_path_for(base_path)
 
     d = load(data_path)
     base = load(base_path) or {}
     base_total = base.get("total")
     base_brands = base.get("brands") or {}
     base_date = (base.get("date") or "")[:10]
+    state = load(st_path) or {}
+    st_brands = state.setdefault("brands", {})
 
     lines = ["", "=== %s run %s ===" % (site, now())]
 
@@ -91,32 +106,65 @@ def main() -> int:
         print("\n".join(lines))
         return 1
 
-    regressions, zeros, total = [], [], 0
+    regressions, excluded, total = [], [], 0
+
     for p in d.get("providers", []):
         name = p.get("name", "?")
         n = len(p.get("items", []))
         st = p.get("status")
         total += n
         prev = base_brands.get(name)
+        rec = st_brands.get(name) or {}
         lines.append("  %-22s %-8s items=%-4d expired_cut=%-3d %s" % (
             name, st, n, p.get("expired_dropped", 0), (p.get("note") or "")[:70]))
 
-        if n == 0:
-            zeros.append(name)
-            if prev:                      # 上次抓到过, 这次 0 -> 回归, 必须点出来
-                lines.append("      <-- ZERO: %s 本次抓到 0 条（上次 %d 条；不是没有优惠，是没抓到）"
-                             % (name, prev))
-                regressions.append("%s(0条, 上次%d)" % (name, prev))
+        missing = (n == 0) or (st != "ok")
+
+        if missing:
+            rec["miss_streak"] = int(rec.get("miss_streak", 0)) + 1
+            if not rec.get("known_missing_since") and rec["miss_streak"] >= MISS_THRESHOLD:
+                # ::RULE{某一家连着几次都抓不到⇒标成已知抓不到 从闸里摘出去 留一行痕}
+                rec["known_missing_since"] = today()
+                rec["reason"] = "连续 %d 次抓到 0 条/失败" % rec["miss_streak"]
+                lines.append("      <-- KNOWN-MISSING: %s 连续 %d 次抓不到（%s），"
+                             "自 %s 起标为已知抓不到，本次起从闸里摘出（页面上不写它还有优惠）"
+                             % (name, rec["miss_streak"], p.get("note") or "-",
+                                rec["known_missing_since"]))
+            elif rec.get("known_missing_since"):
+                lines.append("      <-- KNOWN-MISSING(仍在): %s 自 %s 起标为已知抓不到"
+                             "（连续 %d 次；本次仍从闸里摘出）"
+                             % (name, rec["known_missing_since"], rec["miss_streak"]))
             else:
-                lines.append("      <-- ZERO: %s 本次抓到 0 条（此前也无条，非新增异常）" % name)
-        elif st != "ok":
-            lines.append("      <-- FAIL: %s 状态=%s（该家本次请求失败）" % (name, st))
-            if prev:
-                regressions.append("%s(状态%s, 上次%d条)" % (name, st, prev))
+                lines.append("      <-- MISS %d/%d: %s 本次抓不到（连续 %d 次；满 %d 次将标为已知抓不到）"
+                             % (rec["miss_streak"], MISS_THRESHOLD, name,
+                                rec["miss_streak"], MISS_THRESHOLD))
+        else:
+            if rec.get("known_missing_since"):
+                # ::RULE{摘出去不是删掉⇒它哪天抓回来了 要能自己回到闸里}
+                lines.append("      <-- BACK: %s 本次抓回 %d 条，自动回到闸里"
+                             "（原标记 %s 解除，原因曾为: %s）"
+                             % (name, n, rec["known_missing_since"], rec.get("reason") or "-"))
+                rec.pop("known_missing_since", None)
+                rec.pop("reason", None)
+            rec["miss_streak"] = 0
+
+        st_brands[name] = rec
+        if rec.get("known_missing_since"):
+            excluded.append(name)
+        else:
+            # 闸只判"没被摘出去"的家
+            if n == 0:
+                if prev:
+                    regressions.append("%s(0条, 上次%d)" % (name, prev))
+            elif st != "ok":
+                if prev:
+                    regressions.append("%s(状态%s, 上次%d条)" % (name, st, prev))
 
     stats = d.get("stats") or {}
     lines.append("total=%d  blocked=%s  expired_dropped=%s" % (
         total, stats.get("blocked"), stats.get("expired_dropped")))
+    if excluded:
+        lines.append("excluded(已知抓不到, 已从闸里摘出)=%s" % ", ".join(excluded))
 
     shrink = False
     if base_total:
@@ -137,8 +185,18 @@ def main() -> int:
         lines.append("verdict: SHRINK_GUARD（总条数不足上次成功的一半）-> NOT deployed, 线上留旧快照")
         rc = 1
     else:
-        lines.append("verdict: ALL_OK -> deploy")
+        tail = ("（已摘出已知抓不到: %s）" % ", ".join(excluded)) if excluded else ""
+        lines.append("verdict: ALL_OK%s -> deploy" % tail)
         rc = 0
+
+    # 连续次数每次运行都更新(与基线分开): 被拦的那次也要记, 否则出口永远攒不够次数。
+    state["updated"] = now()
+    try:
+        os.makedirs(os.path.dirname(st_path) or ".", exist_ok=True)
+        with open(st_path, "w", encoding="utf-8") as f:
+            json.dump(state, f, ensure_ascii=False, indent=2)
+    except Exception as e:                                        # noqa: BLE001
+        lines.append("  !! 状态文件写失败: %s" % e)
 
     append_record(log_path, lines)
     print("\n".join(lines))
