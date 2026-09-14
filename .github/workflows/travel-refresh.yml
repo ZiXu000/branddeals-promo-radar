@@ -81,53 +81,6 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
           exit $rc
 
-      # 把当天记录作为 run artifact 上传 —— 这是"今天跑过"最硬的证据:
-      # 完全不依赖 git(记录推不上仓库时它照样在), 且能从 Actions API 直接查到。
-      # 于是外部信号可以三分:
-      #   没 run 也没 artifact        = 今天没跑
-      #   有 run + 有 artifact + 仓库没当天记录 = 跑过了, 但记录没推上去
-      #   有 run + 有 artifact + 仓库有当天记录 = 正常
-      - name: Upload run record as artifact（跑过的硬证据，与 git 无关）
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: run-record
-          path: logs/
-          retention-days: 30
-
-      # 无论上一步成败都要把记录提交上去 —— 失败留痕不能只留在 runner 的临时日志里。
-      # continue-on-error: 记录推不上去是"留痕"这一步的问题, 不该把整条线判死
-      # (站点更新才是主线; 记录没推上去会在 run 里留 ::warning:: 与橙色步骤)。
-      # git add -f: 防 .gitignore 里 logs 被忽略时这一步直接 abort(踩过, 见 2026-09-14 记录)。
-      - name: Commit run record（成败都留痕）
-        if: always()
-        continue-on-error: true
-        run: |
-          git config user.name  "branddeals-bot"
-          git config user.email "branddeals-bot@users.noreply.github.com"
-          git add -f logs/
-          if git diff --staged --quiet; then
-            echo "记录无变化"
-            echo "- 记录已在仓库（本次无新增内容）" >> "$GITHUB_STEP_SUMMARY"
-            exit 0
-          fi
-          # fetch + reset --soft 把改动重放到最新远程之上 —— 不走 rebase 就不会撞冲突
-          for i in 1 2 3; do
-            git fetch -q origin main
-            git reset --soft origin/main
-            git add -f logs/
-            git commit -q -m "chore(travel): run record $(date -u +%F)" || true
-            if git push -q; then
-              echo "run record pushed (attempt $i)"
-              echo "- 记录已提交到仓库 logs/travel-$(date -u +%F).log" >> "$GITHUB_STEP_SUMMARY"
-              exit 0
-            fi
-            echo "push attempt $i failed, retrying in 5s ..."
-            sleep 5
-          done
-          echo "::warning::run record push failed after 3 attempts"
-          echo "- **记录没有推上仓库**：今天跑过了，但仓库里看不到 logs/travel-$(date -u +%F).log 这段" >> "$GITHUB_STEP_SUMMARY"
-
       - name: Build travel site
         run: python build.py --data data/travel4.json --config .ilang/travel4.ilang --out site_travel
 
@@ -165,31 +118,61 @@ jobs:
           done
           exit $rc
 
+      # ::RULE{没部署的那次⇒当天那段记录里显式写一行 我从外面一拉就看得见 不许让它在外面长得跟跑完一样}
       # ::RULE{基线只在上一次判为通过之后更新⇒未部署的那一次一个字都不许写进基线}
-      # 只有"健康判定通过 + 真的部署了"才更新基线 —— 基线是下限闸与回归闸的对照,
-      # 被一次没部署的运行覆盖, 这道闸下次就比错了对象(等于自己消失)。
-      - name: 记基线 + 提交数据快照
-        if: steps.deploy.outputs.deployed == 'yes'
+      # 收尾一次搞定: 把"这次到底部署没部署"写进当天记录 -> 只有真部署了才更新基线 -> 一起提交。
+      # if: always(): 健康判定没过 / build 失败 / 缺 token 时这一步照样跑, 所以"没部署"
+      # 这件事一定会在记录里留下显式一行, 不会从外面看起来跟跑完一样。
+      - name: 收尾（部署结果写进记录 + 记基线 + 提交）
+        if: always()
+        continue-on-error: true
         run: |
-          python tools/run_record.py baseline data/travel4.json data/travel4.baseline.json
-          echo "- 基线已更新（本次健康且已部署）" >> "$GITHUB_STEP_SUMMARY"
+          DATE=$(date -u +%F)
+          DEP="${{ steps.deploy.outputs.deployed }}"
+          if [ "$DEP" = "yes" ]; then
+            echo "deployed: yes —— wrangler 已执行并成功，线上已更新" >> "logs/travel-$DATE.log"
+            echo "- 本次已部署（线上已更新）" >> "$GITHUB_STEP_SUMMARY"
+            python tools/run_record.py baseline data/travel4.json data/travel4.baseline.json
+            echo "- 基线已更新（本次健康且已部署）" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "deployed: NO —— 本次没有部署，线上仍是旧快照；基线不更新（原因见本段上文：健康判定未过 / build 失败 / 缺 token 之一）" >> "logs/travel-$DATE.log"
+            echo "- **本次没有部署**（线上仍是旧快照，基线不更新）" >> "$GITHUB_STEP_SUMMARY"
+          fi
           git config user.name  "branddeals-bot"
           git config user.email "branddeals-bot@users.noreply.github.com"
-          git add data/travel4.json data/travel4.baseline.json
+          add_all() {
+            git add -f logs/ data/travel4.json
+            if [ -f data/travel4.baseline.json ]; then git add -f data/travel4.baseline.json; fi
+            if [ -f data/travel4.state.json ]; then git add -f data/travel4.state.json; fi
+          }
+          add_all
           if git diff --staged --quiet; then
             echo "no changes this run"
+            echo "- 记录已在仓库（本次无新增内容）" >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
           for i in 1 2 3; do
             git fetch -q origin main
             git reset --soft origin/main
-            git add data/travel4.json data/travel4.baseline.json
-            git commit -q -m "chore(travel): refresh travel4 $(date -u +%Y-%m-%dT%H:%M:%SZ)" || true
+            add_all
+            git commit -q -m "chore(travel): run $DATE deployed=$DEP" || true
             if git push -q; then
-              echo "snapshot pushed (attempt $i)"
+              echo "pushed (attempt $i)"
+              echo "- 记录已提交到仓库 logs/travel-$DATE.log" >> "$GITHUB_STEP_SUMMARY"
               exit 0
             fi
             echo "push attempt $i failed, retrying in 5s ..."
             sleep 5
           done
-          echo "::warning::snapshot push failed after 3 attempts (deploy already done)"
+          echo "::warning::push failed after 3 attempts"
+          echo "- **记录没有推上仓库**：今天跑过了，但仓库里看不到 logs/travel-$DATE.log 这段（run 的 artifact 里仍有）" >> "$GITHUB_STEP_SUMMARY"
+
+      # 记录上传为 artifact —— "今天跑过"最硬的证据: 不依赖 git, 且能从 Actions API 查到。
+      # 放在最后, 这样 artifact 里是含 "deployed: yes/NO" 那一行的完整记录。
+      - name: Upload run record as artifact（跑过的硬证据，与 git 无关）
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-record
+          path: logs/
+          retention-days: 30
