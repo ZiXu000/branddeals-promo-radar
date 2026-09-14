@@ -1,12 +1,18 @@
 # ILANG
 # TYPE: workflow | ROLE: scheduler | PROJECT: branddeals-promo-radar
-# ::STATE{@CI, job1:update, runs:scraper.py+build.py, every:6h, commits:data/offers.json+site/, secrets:none}
+# ::STATE{@CI, job1:update, runs:scraper.py+run_record+build.py, every:6h, commits:data/offers.json+site/+logs/, secrets:none}
 # ::STATE{@CI, job2:deploy, runs:wrangler pages deploy, needs:update, secrets:CLOUDFLARE_API_TOKEN+CLOUDFLARE_ACCOUNT_ID}
 # ::RULE{运行时零推理 零API密钥 纯 Python ⇒ update 这个 job 一个 secret 都不要}
 # ::RULE{只有 deploy 这个 job 拿 Cloudflare 令牌 两个 job 靠 artifact 传 site/}
 # ::RULE{没有 Cloudflare secret 时 deploy 自动跳过 update 照常跑 站不会因此停更}
+# ::RULE{运行记录⇒写进固定路径的带日期文件 logs/consumer-<日期>.log 全成功/有失败/某家0条 三种都写}
+# ::RULE{某家"上次抓到过、这次变 0/失败"⇒当天记录必须有显式一行点名 不许静默跳过}
+# ::RULE{本次总条数比上一次成功少一半以上⇒视为这次没抓成 不部署 线上留旧快照 留痕}
+# ::RULE{判据是条数不是流程状态⇒run 绿只说明流程跑完 不说明抓到了东西}
+# ::RULE{同一个坑按类核⇒与旅行站 travel-refresh.yml 用同一套判据(tools/run_record.py)}
 # ::BOUNDARY{never:编数据 刷量|scope:file}
 # ::BOUNDARY{never:把 CLOUDFLARE_API_TOKEN 写进仓库任何文件 只走 GitHub Secrets|scope:file}
+# ::BOUNDARY{never:把抓不到写成没有优惠|scope:permanent}
 name: update
 
 on:
@@ -19,6 +25,7 @@ on:
     paths:
       - "scraper.py"
       - "build.py"
+      - "tools/run_record.py"
       - "templates/**"
       - ".ilang/site.ilang"
       - ".github/workflows/update.yml"
@@ -31,7 +38,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # ---------- job 1: 抓 + 建 + 提交。零 secret。 ----------
+  # ---------- job 1: 抓 + 记 + 建 + 提交。零 secret。 ----------
   update:
     runs-on: ubuntu-latest
     steps:
@@ -49,23 +56,68 @@ jobs:
       - name: Scrape public feeds
         run: python scraper.py
 
+      # 写当天运行记录 + 判健康。三种状态都写进 logs/consumer-<日期>.log:
+      #   ALL_OK / BRAND_REGRESSION(某家上次有条这次0条或失败, 点名) / SHRINK_GUARD(总条数不足上次一半)
+      # 不健康时退出码 1 -> 后面的 build/commit/deploy 全部跳过, 线上留旧快照。
+      # 注意: 消费站里有几家是长期被源站拒的(403/404), 它们常年 0 条 —— 判据是"回归"
+      # 而不是"只要 0 条就报", 否则这个站会被永久冻住。
+      - name: Write run record + health verdict
+        run: |
+          DATE=$(date -u +%F)
+          python tools/run_record.py record \
+            data/offers.json data/offers.baseline.json \
+            logs/consumer-$DATE.log consumer
+
+      # 无论上一步成败都要把记录提交上去 —— 失败留痕不能只留在 runner 的临时日志里。
+      - name: Commit run record（成败都留痕）
+        if: always()
+        run: |
+          git config user.name  "branddeals-bot"
+          git config user.email "branddeals-bot@users.noreply.github.com"
+          git add logs/
+          if git diff --staged --quiet; then
+            echo "记录无变化"
+            exit 0
+          fi
+          git commit -m "chore: run record $(date -u +%F)"
+          for i in 1 2 3; do
+            if git pull --rebase --autostash origin main && git push; then
+              echo "run record pushed (attempt $i)"
+              exit 0
+            fi
+            echo "push attempt $i failed, retrying in 5s ..."
+            sleep 5
+          done
+          echo "::warning::run record push failed after 3 attempts"
+
       - name: Build static site
         env:
           # 留空时 build.py 自动回落到 .ilang/site.ilang 里的 domain
           SITE_BASE_URL: ${{ vars.SITE_BASE_URL }}
         run: python build.py
 
-      - name: Commit fresh data + site
+      - name: 记基线 + Commit fresh data + site
         run: |
+          # 基线代表"上一次健康抓回来的条数", 是下次下限闸的对照 —— 只有这次健康(闸放行)
+          # 才会走到这一步, 所以在这里记是安全的。
+          python tools/run_record.py baseline data/offers.json data/offers.baseline.json
           git config user.name  "branddeals-bot"
           git config user.email "branddeals-bot@users.noreply.github.com"
-          git add data/offers.json site
+          git add data/offers.json data/offers.baseline.json site
           if git diff --staged --quiet; then
             echo "no changes this run"
-          else
-            git commit -m "chore: auto-update offers $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            git push
+            exit 0
           fi
+          git commit -m "chore: auto-update offers $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          for i in 1 2 3; do
+            if git pull --rebase --autostash origin main && git push; then
+              echo "snapshot pushed (attempt $i)"
+              exit 0
+            fi
+            echo "push attempt $i failed, retrying in 5s ..."
+            sleep 5
+          done
+          echo "::warning::push failed after 3 attempts"
 
       - name: Hand site/ to the deploy job
         uses: actions/upload-artifact@v4
