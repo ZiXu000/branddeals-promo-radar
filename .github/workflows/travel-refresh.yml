@@ -11,12 +11,17 @@
 # 四家(Southwest/Carnival/Hilton/JetBlue)全部抓到, blocked=0 —— runner 的出口没有被这些站封。
 # 按老板的判据"不封就把刷新挪上去", 每日刷新从本机定时任务挪到这里, 站才是真自动
 # (不再依赖某台机器开着)。
+# 为什么不用 GitHub 自带的 cron（2026-09-14 实测后撤掉）:
+#   这个仓库的 cron 实测不可靠 —— 仓库建后 18.6 小时里, update.yml 的 6 小时 cron 只跑了 1 次
+#   (迟到 2.6h), 本工作流的每日 slot 过了 3h 还没跑。所以改成"本机可靠触发":
+#   这台常开的云主机(CVM)用 Windows 计划任务到点调 GitHub API 触发本工作流
+#   (tools/dispatch_travel_refresh.ps1)。抓取/构建/部署仍旧在 runner 上跑。
+#   撤掉 cron 还有一个原因: 页面承诺写的是 "once a day", 若 cron 和本机触发都生效就会跑两次,
+#   跟页面承诺不符。现在严格每天一次。
 name: travel-refresh
 
 on:
-  schedule:
-    - cron: "0 1 * * *"          # 每天 01:00 UTC = 北京时间 09:00
-  workflow_dispatch: {}          # 也可以手动触发
+  workflow_dispatch: {}          # 只由本机可靠触发器调用（也可手动）
 
 permissions:
   contents: write
