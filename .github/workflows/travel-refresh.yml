@@ -68,7 +68,18 @@ jobs:
           DATE=$(date -u +%F)
           python tools/run_record.py record \
             data/travel4.json data/travel4.baseline.json \
-            logs/travel-$DATE.log travel4
+            logs/travel-$DATE.log travel4 | tee /tmp/rec.txt
+          rc=${PIPESTATUS[0]}
+          # 把这段记录写进 run 页面的 Job Summary —— 这是"今天跑过"最可靠的外部信号:
+          # 即使后面记录没推上仓库, 这一页也留得下(见 RULE: 跑过而记录没上去 与 今天没跑 必须分得开)。
+          {
+            echo "## travel-refresh $DATE"
+            echo ""
+            echo '```'
+            cat /tmp/rec.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit $rc
 
       # 无论上一步成败都要把记录提交上去 —— 失败留痕不能只留在 runner 的临时日志里。
       # continue-on-error: 记录推不上去是"留痕"这一步的问题, 不该把整条线判死
@@ -83,6 +94,7 @@ jobs:
           git add -f logs/
           if git diff --staged --quiet; then
             echo "记录无变化"
+            echo "- 记录已在仓库（本次无新增内容）" >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
           # fetch + reset --soft 把改动重放到最新远程之上 —— 不走 rebase 就不会撞冲突
@@ -93,30 +105,39 @@ jobs:
             git commit -q -m "chore(travel): run record $(date -u +%F)" || true
             if git push -q; then
               echo "run record pushed (attempt $i)"
+              echo "- 记录已提交到仓库 logs/travel-$(date -u +%F).log" >> "$GITHUB_STEP_SUMMARY"
               exit 0
             fi
             echo "push attempt $i failed, retrying in 5s ..."
             sleep 5
           done
           echo "::warning::run record push failed after 3 attempts"
+          echo "- **记录没有推上仓库**：今天跑过了，但仓库里看不到 logs/travel-$(date -u +%F).log 这段" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Build travel site
         run: python build.py --data data/travel4.json --config .ilang/travel4.ilang --out site_travel
 
       # build 失败时 GitHub 的 bash -e 会直接中断 job, 部署不会跑 —— 这是要的:
       # build 失败绝不部署(否则等于把旧/过期内容再传一遍, 假成功)。
+      # 输出 deployed=yes/no: 下面的"记基线"只认 yes。
+      # 缺 token 时旧写法是 exit 0 —— 那样 Verify 会对着"上一次的线上内容"判 200 通过,
+      # 基线就被一次根本没部署的运行覆盖了(闸会因此慢慢失效)。现在这种情形明确记 deployed=no。
       - name: Deploy to Cloudflare Pages
+        id: deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
-            echo "CLOUDFLARE_API_TOKEN 未配置，跳过部署（抓取与提交已完成）"
+            echo "deployed=no" >> "$GITHUB_OUTPUT"
+            echo "::warning::CLOUDFLARE_API_TOKEN 未配置，跳过部署 —— 本次不更新基线"
+            echo "- **本次未部署**（缺 CLOUDFLARE_API_TOKEN）：线上留旧快照，基线不更新" >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
           npx wrangler@4 pages deploy site_travel \
             --project-name traveldeals-promo-radar \
             --branch main --commit-dirty=true
+          echo "deployed=yes" >> "$GITHUB_OUTPUT"
 
       - name: Verify production（打不开就不算上线）
         run: |
@@ -130,11 +151,14 @@ jobs:
           done
           exit $rc
 
-      # 只有真的部署成功才更新基线 —— 基线代表"上一次成功抓回来的条数",
-      # 拿失败的那次当基线会把下限闸算歪。
+      # ::RULE{基线只在上一次判为通过之后更新⇒未部署的那一次一个字都不许写进基线}
+      # 只有"健康判定通过 + 真的部署了"才更新基线 —— 基线是下限闸与回归闸的对照,
+      # 被一次没部署的运行覆盖, 这道闸下次就比错了对象(等于自己消失)。
       - name: 记基线 + 提交数据快照
+        if: steps.deploy.outputs.deployed == 'yes'
         run: |
           python tools/run_record.py baseline data/travel4.json data/travel4.baseline.json
+          echo "- 基线已更新（本次健康且已部署）" >> "$GITHUB_STEP_SUMMARY"
           git config user.name  "branddeals-bot"
           git config user.email "branddeals-bot@users.noreply.github.com"
           git add data/travel4.json data/travel4.baseline.json
