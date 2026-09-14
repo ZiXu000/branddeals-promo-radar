@@ -34,7 +34,9 @@ permissions:
   contents: write
 
 concurrency:
-  group: update
+  # 与 travel-refresh 共用同一个组: 两条线都要往同一个仓库 push, 并发跑必然 rebase 冲突
+  # (2026-09-14 踩过: update 与 travel-refresh 同时触发 -> pull --rebase 冲突 -> 整步失败)。
+  group: repo-write
   cancel-in-progress: false
 
 jobs:
@@ -83,9 +85,14 @@ jobs:
             echo "记录无变化"
             exit 0
           fi
-          git commit -m "chore: run record $(date -u +%F)"
+          # 用 fetch + reset --soft 把改动"重放"到最新远程之上 —— 不走 rebase 就不会撞冲突
+          # (2026-09-14 踩过: 并发跑时 pull --rebase 冲突, 整步失败)。
           for i in 1 2 3; do
-            if git pull --rebase --autostash origin main && git push; then
+            git fetch -q origin main
+            git reset --soft origin/main
+            git add -f logs/
+            git commit -q -m "chore: run record $(date -u +%F)" || true
+            if git push -q; then
               echo "run record pushed (attempt $i)"
               exit 0
             fi
@@ -112,9 +119,12 @@ jobs:
             echo "no changes this run"
             exit 0
           fi
-          git commit -m "chore: auto-update offers $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           for i in 1 2 3; do
-            if git pull --rebase --autostash origin main && git push; then
+            git fetch -q origin main
+            git reset --soft origin/main
+            git add data/offers.json data/offers.baseline.json site
+            git commit -q -m "chore: auto-update offers $(date -u +%Y-%m-%dT%H:%M:%SZ)" || true
+            if git push -q; then
               echo "snapshot pushed (attempt $i)"
               exit 0
             fi
