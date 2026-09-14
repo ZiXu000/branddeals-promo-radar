@@ -1,0 +1,9 @@
+
+=== travel4 run 2026-09-14T05:13:34Z ===
+  Southwest Airlines     ok       items=33   expired_cut=0   
+  Carnival Cruise Line   ok       items=5    expired_cut=0   carnival official deals API, 5 raw
+  Hilton                 ok       items=14   expired_cut=0   
+  JetBlue                ok       items=1    expired_cut=0   
+total=53  blocked=0  expired_dropped=0
+baseline=无（首次记录，本次不套下限闸）
+verdict: ALL_OK -> deploy
