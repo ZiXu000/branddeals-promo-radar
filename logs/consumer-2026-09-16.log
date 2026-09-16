@@ -30,3 +30,34 @@ excluded(已知抓不到, 已从闸里摘出)=Bombas, Gymshark, Legion Athletics
 baseline=758 (2026-09-15)  shrink_floor=379  -> 本次 756 >= 379, 通过
 verdict: ALL_OK（已摘出已知抓不到: Bombas, Gymshark, Legion Athletics, Curology, Blue Apron, NordVPN） -> deploy
 deployed: yes —— wrangler 已执行并成功，线上已更新
+
+=== consumer run 2026-09-16T11:46:11Z ===
+  Glossier               ok       items=112  expired_cut=0   
+  Allbirds               ok       items=250  expired_cut=0   
+  Transparent Labs       ok       items=71   expired_cut=0   
+  Ilia                   ok       items=80   expired_cut=0   
+  Supergoop              ok       items=87   expired_cut=0   
+  Tower 28               ok       items=67   expired_cut=0   
+  Gorilla Mind           ok       items=53   expired_cut=0   
+  Bombas                 blocked  items=0    expired_cut=0   HTTP 429
+      <-- KNOWN-MISSING(仍在): Bombas 自 2026-09-14 起标为已知抓不到（连续 11 次；本次仍从闸里摘出）
+  Gymshark               blocked  items=0    expired_cut=0   HTTP 403
+      <-- KNOWN-MISSING(仍在): Gymshark 自 2026-09-14 起标为已知抓不到（连续 11 次；本次仍从闸里摘出）
+  Legion Athletics       error    items=0    expired_cut=0   HTTP 404
+      <-- KNOWN-MISSING(仍在): Legion Athletics 自 2026-09-14 起标为已知抓不到（连续 11 次；本次仍从闸里摘出）
+  Vuori                  ok       items=15   expired_cut=0   
+  Curology               empty    items=0    expired_cut=0   no price found in page text
+      <-- KNOWN-MISSING(仍在): Curology 自 2026-09-14 起标为已知抓不到（连续 11 次；本次仍从闸里摘出）
+  Dinnerly               ok       items=1    expired_cut=0   
+  Blue Apron             blocked  items=0    expired_cut=0   HTTP 403
+      <-- KNOWN-MISSING(仍在): Blue Apron 自 2026-09-14 起标为已知抓不到（连续 11 次；本次仍从闸里摘出）
+  Skillshare             ok       items=2    expired_cut=0   
+  Notion                 ok       items=7    expired_cut=0   
+  Grammarly              ok       items=4    expired_cut=0   
+  NordVPN                blocked  items=0    expired_cut=0   HTTP 403
+      <-- KNOWN-MISSING(仍在): NordVPN 自 2026-09-14 起标为已知抓不到（连续 11 次；本次仍从闸里摘出）
+  Hostinger              ok       items=7    expired_cut=0   
+total=756  blocked=4  expired_dropped=0
+excluded(已知抓不到, 已从闸里摘出)=Bombas, Gymshark, Legion Athletics, Curology, Blue Apron, NordVPN
+baseline=756 (2026-09-16)  shrink_floor=378  -> 本次 756 >= 378, 通过
+verdict: ALL_OK（已摘出已知抓不到: Bombas, Gymshark, Legion Athletics, Curology, Blue Apron, NordVPN） -> deploy
