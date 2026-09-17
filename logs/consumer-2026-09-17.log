@@ -59,3 +59,4 @@ total=749  blocked=4  expired_dropped=0
 excluded(已知抓不到, 已从闸里摘出)=Bombas, Gymshark, Legion Athletics, Blue Apron, NordVPN
 baseline=749 (2026-09-17)  shrink_floor=374  -> 本次 749 >= 374, 通过
 verdict: ALL_OK（已摘出已知抓不到: Bombas, Gymshark, Legion Athletics, Blue Apron, NordVPN） -> deploy
+deployed: yes —— wrangler 已执行并成功，线上已更新
