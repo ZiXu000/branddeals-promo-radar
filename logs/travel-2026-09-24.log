@@ -19,3 +19,13 @@ total=53  blocked=0  expired_dropped=0
 baseline=53 (2026-09-23)  shrink_floor=26  -> 本次 53 >= 26, 通过
 verdict: ALL_OK -> deploy
 deployed: yes —— wrangler 已执行并成功，线上已更新
+
+=== travel4 run 2026-09-24T07:27:56Z ===
+  Southwest Airlines     ok       items=33   expired_cut=0   
+  Carnival Cruise Line   ok       items=4    expired_cut=0   carnival official deals API, 4 raw
+  Hilton                 ok       items=16   expired_cut=0   
+  JetBlue                ok       items=1    expired_cut=0   
+total=54  blocked=0  expired_dropped=0
+baseline=53 (2026-09-24)  shrink_floor=26  -> 本次 54 >= 26, 通过
+verdict: ALL_OK -> deploy
+deployed: yes —— wrangler 已执行并成功，线上已更新

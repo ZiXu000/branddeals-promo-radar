@@ -1,10 +1,10 @@
 {
-  "date": "2026-09-24T07:06:54Z",
-  "total": 53,
+  "date": "2026-09-24T07:28:11Z",
+  "total": 54,
   "brands": {
-    "Southwest Airlines": 31,
+    "Southwest Airlines": 33,
     "Carnival Cruise Line": 4,
     "Hilton": 16,
-    "JetBlue": 2
+    "JetBlue": 1
   }
 }
