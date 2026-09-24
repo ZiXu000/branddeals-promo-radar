@@ -22,17 +22,17 @@
       "miss_streak": 0
     },
     "Bombas": {
-      "miss_streak": 42,
+      "miss_streak": 43,
       "known_missing_since": "2026-09-14",
       "reason": "连续 3 次抓到 0 条/失败"
     },
     "Gymshark": {
-      "miss_streak": 42,
+      "miss_streak": 43,
       "known_missing_since": "2026-09-14",
       "reason": "连续 3 次抓到 0 条/失败"
     },
     "Legion Athletics": {
-      "miss_streak": 42,
+      "miss_streak": 43,
       "known_missing_since": "2026-09-14",
       "reason": "连续 3 次抓到 0 条/失败"
     },
@@ -46,7 +46,7 @@
       "miss_streak": 0
     },
     "Blue Apron": {
-      "miss_streak": 42,
+      "miss_streak": 43,
       "known_missing_since": "2026-09-14",
       "reason": "连续 3 次抓到 0 条/失败"
     },
@@ -60,7 +60,7 @@
       "miss_streak": 0
     },
     "NordVPN": {
-      "miss_streak": 42,
+      "miss_streak": 43,
       "known_missing_since": "2026-09-14",
       "reason": "连续 3 次抓到 0 条/失败"
     },
@@ -68,5 +68,5 @@
       "miss_streak": 0
     }
   },
-  "updated": "2026-09-24T11:56:03Z"
+  "updated": "2026-09-24T17:17:58Z"
 }
