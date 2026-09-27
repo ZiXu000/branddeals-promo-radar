@@ -9,3 +9,13 @@ total=50  blocked=0  expired_dropped=1
 baseline=54 (2026-09-25)  shrink_floor=27  -> 本次 50 >= 27, 通过
 verdict: BRAND_REGRESSION（JetBlue(0条, 上次1)）-> NOT deployed, 线上留旧快照
 deployed: NO —— 本次没有部署，线上仍是旧快照；基线不更新（原因见本段上文：健康判定未过 / build 失败 / 缺 token 之一）
+
+=== travel4 run 2026-09-27T01:29:12Z ===
+  Southwest Airlines     ok       items=30   expired_cut=0   
+  Carnival Cruise Line   ok       items=4    expired_cut=1   carnival official deals API, 5 raw | dropped 1 expired (2026-09-26)
+  Hilton                 ok       items=15   expired_cut=0   
+  JetBlue                ok       items=1    expired_cut=0   
+total=50  blocked=0  expired_dropped=1
+baseline=54 (2026-09-25)  shrink_floor=27  -> 本次 50 >= 27, 通过
+verdict: ALL_OK -> deploy
+deployed: yes —— wrangler 已执行并成功，线上已更新
