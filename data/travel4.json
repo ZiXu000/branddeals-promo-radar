@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-09-27T01:29:12+00:00",
-  "today_utc": "2026-09-27",
+  "generated_at": "2026-09-28T01:12:27+00:00",
+  "today_utc": "2026-09-28",
   "site": {
     "brand": "TravelDeals Radar",
     "niche": "travel brand official deals and promo codes",
@@ -27,9 +27,9 @@
   },
   "stats": {
     "providers": 4,
-    "items": 50,
-    "deals": 9,
-    "expired_dropped": 1,
+    "items": 54,
+    "deals": 8,
+    "expired_dropped": 0,
     "rendered_providers": 3,
     "blocked": 0
   },
@@ -46,23 +46,9 @@
       "note": "",
       "prov_note": "Official fares only. Southwest publishes no public promo codes — the only \"Promo Code\" on its site is a booking-form field. Every fare below is taken from the official flight-deals page. Codes circulating on third-party coupon sites are not listed here, and in our checks they do not validate on Southwest's own booking page.",
       "renderer": true,
-      "raw_count": 30,
+      "raw_count": 34,
       "expired_dropped": 0,
       "items": [
-        {
-          "title": "Sacramento to San Diego (depart 11/03/2026) One Way",
-          "price": 59.0,
-          "currency": "USD",
-          "compare_at_price": null,
-          "discount_percent": 0,
-          "available": true,
-          "offer_url": "https://www.southwest.com/en/flights/flight-deals",
-          "image": "",
-          "valid_until": "2026-11-03",
-          "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
-          "extract": "rendered_api"
-        },
         {
           "title": "Oakland to Las Vegas (depart 10/31/2026) One Way",
           "price": 59.0,
@@ -74,11 +60,11 @@
           "image": "",
           "valid_until": "2026-10-31",
           "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
           "extract": "rendered_api"
         },
         {
-          "title": "Los Angeles to Las Vegas (depart 10/29/2026) One Way",
+          "title": "Los Angeles to Las Vegas (depart 12/17/2026) One Way",
           "price": 59.0,
           "currency": "USD",
           "compare_at_price": null,
@@ -86,13 +72,13 @@
           "available": true,
           "offer_url": "https://www.southwest.com/en/flights/flight-deals",
           "image": "",
-          "valid_until": "2026-10-29",
+          "valid_until": "2026-12-17",
           "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
           "extract": "rendered_api"
         },
         {
-          "title": "Phoenix to Las Vegas (depart 12/09/2026) One Way",
+          "title": "Sacramento to San Diego (depart 11/07/2026) One Way",
           "price": 59.0,
           "currency": "USD",
           "compare_at_price": null,
@@ -100,13 +86,13 @@
           "available": true,
           "offer_url": "https://www.southwest.com/en/flights/flight-deals",
           "image": "",
-          "valid_until": "2026-12-09",
+          "valid_until": "2026-11-07",
           "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
           "extract": "rendered_api"
         },
         {
-          "title": "San Diego to Las Vegas (depart 11/11/2026) One Way",
+          "title": "Phoenix to Las Vegas (depart 11/12/2026) One Way",
           "price": 59.0,
           "currency": "USD",
           "compare_at_price": null,
@@ -114,13 +100,13 @@
           "available": true,
           "offer_url": "https://www.southwest.com/en/flights/flight-deals",
           "image": "",
-          "valid_until": "2026-11-11",
+          "valid_until": "2026-11-12",
           "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
           "extract": "rendered_api"
         },
         {
-          "title": "San Jose, CA to San Diego (depart 12/14/2026) One Way",
+          "title": "San Diego to Las Vegas (depart 01/06/2027) One Way",
           "price": 59.0,
           "currency": "USD",
           "compare_at_price": null,
@@ -128,23 +114,23 @@
           "available": true,
           "offer_url": "https://www.southwest.com/en/flights/flight-deals",
           "image": "",
-          "valid_until": "2026-12-14",
+          "valid_until": "2027-01-06",
           "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
           "extract": "rendered_api"
         },
         {
-          "title": "Denver to Phoenix (depart 01/13/2027) One Way",
-          "price": 74.0,
+          "title": "San Jose, CA to San Diego (depart 10/22/2026) One Way",
+          "price": 59.0,
           "currency": "USD",
           "compare_at_price": null,
           "discount_percent": 0,
           "available": true,
           "offer_url": "https://www.southwest.com/en/flights/flight-deals",
           "image": "",
-          "valid_until": "2027-01-13",
+          "valid_until": "2026-10-22",
           "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
           "extract": "rendered_api"
         },
         {
@@ -158,26 +144,82 @@
           "image": "",
           "valid_until": "2027-01-28",
           "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
           "extract": "rendered_api"
         },
         {
-          "title": "San Jose, CA to Las Vegas (depart 11/03/2026) One Way",
-          "price": 85.0,
+          "title": "Houston Hobby to Las Vegas (depart 12/16/2026) One Way",
+          "price": 86.0,
           "currency": "USD",
           "compare_at_price": null,
           "discount_percent": 0,
           "available": true,
           "offer_url": "https://www.southwest.com/en/flights/flight-deals",
           "image": "",
-          "valid_until": "2026-11-03",
+          "valid_until": "2026-12-16",
           "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
           "extract": "rendered_api"
         },
         {
-          "title": "Houston Hobby to Las Vegas (depart 11/17/2026) One Way",
-          "price": 86.0,
+          "title": "Denver to Phoenix (depart 12/08/2026) One Way",
+          "price": 89.0,
+          "currency": "USD",
+          "compare_at_price": null,
+          "discount_percent": 0,
+          "available": true,
+          "offer_url": "https://www.southwest.com/en/flights/flight-deals",
+          "image": "",
+          "valid_until": "2026-12-08",
+          "source_url": "https://www.southwest.com/en/flights/flight-deals",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
+          "extract": "rendered_api"
+        },
+        {
+          "title": "San Juan to Orlando (depart 10/22/2026) One Way",
+          "price": 101.0,
+          "currency": "USD",
+          "compare_at_price": null,
+          "discount_percent": 0,
+          "available": true,
+          "offer_url": "https://www.southwest.com/en/flights/flight-deals",
+          "image": "",
+          "valid_until": "2026-10-22",
+          "source_url": "https://www.southwest.com/en/flights/flight-deals",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
+          "extract": "rendered_api"
+        },
+        {
+          "title": "Orlando to San Juan (depart 11/12/2026) One Way",
+          "price": 101.0,
+          "currency": "USD",
+          "compare_at_price": null,
+          "discount_percent": 0,
+          "available": true,
+          "offer_url": "https://www.southwest.com/en/flights/flight-deals",
+          "image": "",
+          "valid_until": "2026-11-12",
+          "source_url": "https://www.southwest.com/en/flights/flight-deals",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
+          "extract": "rendered_api"
+        },
+        {
+          "title": "San Jose, CA to Las Vegas (depart 10/27/2026) One Way",
+          "price": 103.0,
+          "currency": "USD",
+          "compare_at_price": null,
+          "discount_percent": 0,
+          "available": true,
+          "offer_url": "https://www.southwest.com/en/flights/flight-deals",
+          "image": "",
+          "valid_until": "2026-10-27",
+          "source_url": "https://www.southwest.com/en/flights/flight-deals",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
+          "extract": "rendered_api"
+        },
+        {
+          "title": "Baltimore/Washington to Fort Lauderdale (depart 11/17/2026) One Way",
+          "price": 109.0,
           "currency": "USD",
           "compare_at_price": null,
           "discount_percent": 0,
@@ -186,81 +228,11 @@
           "image": "",
           "valid_until": "2026-11-17",
           "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
           "extract": "rendered_api"
         },
         {
-          "title": "Sacramento to Las Vegas (depart 11/15/2026) One Way",
-          "price": 90.0,
-          "currency": "USD",
-          "compare_at_price": null,
-          "discount_percent": 0,
-          "available": true,
-          "offer_url": "https://www.southwest.com/en/flights/flight-deals",
-          "image": "",
-          "valid_until": "2026-11-15",
-          "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
-          "extract": "rendered_api"
-        },
-        {
-          "title": "San Juan to Orlando (depart 12/10/2026) One Way",
-          "price": 101.0,
-          "currency": "USD",
-          "compare_at_price": null,
-          "discount_percent": 0,
-          "available": true,
-          "offer_url": "https://www.southwest.com/en/flights/flight-deals",
-          "image": "",
-          "valid_until": "2026-12-10",
-          "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
-          "extract": "rendered_api"
-        },
-        {
-          "title": "Orlando to San Juan (depart 10/30/2026) One Way",
-          "price": 101.0,
-          "currency": "USD",
-          "compare_at_price": null,
-          "discount_percent": 0,
-          "available": true,
-          "offer_url": "https://www.southwest.com/en/flights/flight-deals",
-          "image": "",
-          "valid_until": "2026-10-30",
-          "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
-          "extract": "rendered_api"
-        },
-        {
-          "title": "Denver to Las Vegas (depart 02/22/2027) One Way",
-          "price": 102.0,
-          "currency": "USD",
-          "compare_at_price": null,
-          "discount_percent": 0,
-          "available": true,
-          "offer_url": "https://www.southwest.com/en/flights/flight-deals",
-          "image": "",
-          "valid_until": "2027-02-22",
-          "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
-          "extract": "rendered_api"
-        },
-        {
-          "title": "Baltimore/Washington to Fort Lauderdale (depart 11/10/2026) One Way",
-          "price": 109.0,
-          "currency": "USD",
-          "compare_at_price": null,
-          "discount_percent": 0,
-          "available": true,
-          "offer_url": "https://www.southwest.com/en/flights/flight-deals",
-          "image": "",
-          "valid_until": "2026-11-10",
-          "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
-          "extract": "rendered_api"
-        },
-        {
-          "title": "Baltimore/Washington to Orlando (depart 01/09/2027) One Way",
+          "title": "Baltimore/Washington to Orlando (depart 11/21/2026) One Way",
           "price": 119.0,
           "currency": "USD",
           "compare_at_price": null,
@@ -268,27 +240,41 @@
           "available": true,
           "offer_url": "https://www.southwest.com/en/flights/flight-deals",
           "image": "",
-          "valid_until": "2027-01-09",
+          "valid_until": "2026-11-21",
           "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
           "extract": "rendered_api"
         },
         {
-          "title": "Chicago-Midway to Las Vegas (depart 02/23/2027) One Way",
-          "price": 130.0,
+          "title": "Sacramento to Las Vegas (depart 12/23/2026) One Way",
+          "price": 124.0,
           "currency": "USD",
           "compare_at_price": null,
           "discount_percent": 0,
           "available": true,
           "offer_url": "https://www.southwest.com/en/flights/flight-deals",
           "image": "",
-          "valid_until": "2027-02-23",
+          "valid_until": "2026-12-23",
           "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
           "extract": "rendered_api"
         },
         {
-          "title": "Chicago-Midway to Tampa (depart 02/27/2027) One Way",
+          "title": "Denver to Las Vegas (depart 11/16/2026) One Way",
+          "price": 124.0,
+          "currency": "USD",
+          "compare_at_price": null,
+          "discount_percent": 0,
+          "available": true,
+          "offer_url": "https://www.southwest.com/en/flights/flight-deals",
+          "image": "",
+          "valid_until": "2026-11-16",
+          "source_url": "https://www.southwest.com/en/flights/flight-deals",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
+          "extract": "rendered_api"
+        },
+        {
+          "title": "Chicago-Midway to Tampa (depart 11/18/2026) One Way",
           "price": 139.0,
           "currency": "USD",
           "compare_at_price": null,
@@ -296,13 +282,13 @@
           "available": true,
           "offer_url": "https://www.southwest.com/en/flights/flight-deals",
           "image": "",
-          "valid_until": "2027-02-27",
+          "valid_until": "2026-11-18",
           "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
           "extract": "rendered_api"
         },
         {
-          "title": "Chicago-Midway to Phoenix (depart 12/12/2026) One Way",
+          "title": "Chicago-Midway to Phoenix (depart 11/03/2026) One Way",
           "price": 142.0,
           "currency": "USD",
           "compare_at_price": null,
@@ -310,14 +296,14 @@
           "available": true,
           "offer_url": "https://www.southwest.com/en/flights/flight-deals",
           "image": "",
-          "valid_until": "2026-12-12",
+          "valid_until": "2026-11-03",
           "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
           "extract": "rendered_api"
         },
         {
-          "title": "Chicago-Midway to Orlando (depart 10/31/2026) One Way",
-          "price": 174.0,
+          "title": "Chicago-Midway to Las Vegas (depart 10/31/2026) One Way",
+          "price": 159.0,
           "currency": "USD",
           "compare_at_price": null,
           "discount_percent": 0,
@@ -326,11 +312,25 @@
           "image": "",
           "valid_until": "2026-10-31",
           "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
           "extract": "rendered_api"
         },
         {
-          "title": "Oakland to Las Vegas (depart 12/02/2026) One Way",
+          "title": "Chicago-Midway to Orlando (depart 04/03/2027) One Way",
+          "price": 174.0,
+          "currency": "USD",
+          "compare_at_price": null,
+          "discount_percent": 0,
+          "available": true,
+          "offer_url": "https://www.southwest.com/en/flights/flight-deals",
+          "image": "",
+          "valid_until": "2027-04-03",
+          "source_url": "https://www.southwest.com/en/flights/flight-deals",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
+          "extract": "rendered_api"
+        },
+        {
+          "title": "Oakland to Las Vegas (depart 12/05/2026) One Way",
           "price": 59.0,
           "currency": "USD",
           "compare_at_price": null,
@@ -338,13 +338,13 @@
           "available": true,
           "offer_url": "https://www.southwest.com/en/flights/flight-deals",
           "image": "",
-          "valid_until": "2026-12-02",
+          "valid_until": "2026-12-05",
           "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
           "extract": "rendered_api"
         },
         {
-          "title": "Los Angeles to Las Vegas (depart 10/20/2026) One Way",
+          "title": "Los Angeles to Las Vegas (depart 01/27/2027) One Way",
           "price": 59.0,
           "currency": "USD",
           "compare_at_price": null,
@@ -352,9 +352,23 @@
           "available": true,
           "offer_url": "https://www.southwest.com/en/flights/flight-deals",
           "image": "",
-          "valid_until": "2026-10-20",
+          "valid_until": "2027-01-27",
           "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
+          "extract": "rendered_api"
+        },
+        {
+          "title": "Sacramento to San Diego (depart 02/16/2027) One Way",
+          "price": 59.0,
+          "currency": "USD",
+          "compare_at_price": null,
+          "discount_percent": 0,
+          "available": true,
+          "offer_url": "https://www.southwest.com/en/flights/flight-deals",
+          "image": "",
+          "valid_until": "2027-02-16",
+          "source_url": "https://www.southwest.com/en/flights/flight-deals",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
           "extract": "rendered_api"
         },
         {
@@ -368,11 +382,11 @@
           "image": "",
           "valid_until": "2026-10-19",
           "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
           "extract": "rendered_api"
         },
         {
-          "title": "Long Beach to Las Vegas (depart 10/20/2026) One Way",
+          "title": "San Diego to Las Vegas (depart 10/26/2026) One Way",
           "price": 59.0,
           "currency": "USD",
           "compare_at_price": null,
@@ -380,13 +394,55 @@
           "available": true,
           "offer_url": "https://www.southwest.com/en/flights/flight-deals",
           "image": "",
-          "valid_until": "2026-10-20",
+          "valid_until": "2026-10-26",
           "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
           "extract": "rendered_api"
         },
         {
-          "title": "Fort Lauderdale to San Juan (depart 10/23/2026) One Way",
+          "title": "San Jose, CA to San Diego (depart 01/18/2027) One Way",
+          "price": 59.0,
+          "currency": "USD",
+          "compare_at_price": null,
+          "discount_percent": 0,
+          "available": true,
+          "offer_url": "https://www.southwest.com/en/flights/flight-deals",
+          "image": "",
+          "valid_until": "2027-01-18",
+          "source_url": "https://www.southwest.com/en/flights/flight-deals",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
+          "extract": "rendered_api"
+        },
+        {
+          "title": "Oakland to San Diego (depart 10/26/2026) One Way",
+          "price": 59.0,
+          "currency": "USD",
+          "compare_at_price": null,
+          "discount_percent": 0,
+          "available": true,
+          "offer_url": "https://www.southwest.com/en/flights/flight-deals",
+          "image": "",
+          "valid_until": "2026-10-26",
+          "source_url": "https://www.southwest.com/en/flights/flight-deals",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
+          "extract": "rendered_api"
+        },
+        {
+          "title": "Orlando to San Juan (depart 12/08/2026) One Way",
+          "price": 101.0,
+          "currency": "USD",
+          "compare_at_price": null,
+          "discount_percent": 0,
+          "available": true,
+          "offer_url": "https://www.southwest.com/en/flights/flight-deals",
+          "image": "",
+          "valid_until": "2026-12-08",
+          "source_url": "https://www.southwest.com/en/flights/flight-deals",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
+          "extract": "rendered_api"
+        },
+        {
+          "title": "Fort Lauderdale to San Juan (depart 10/16/2026) One Way",
           "price": 104.0,
           "currency": "USD",
           "compare_at_price": null,
@@ -394,28 +450,14 @@
           "available": true,
           "offer_url": "https://www.southwest.com/en/flights/flight-deals",
           "image": "",
-          "valid_until": "2026-10-23",
+          "valid_until": "2026-10-16",
           "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
           "extract": "rendered_api"
         },
         {
-          "title": "Chicago-Midway to San Juan (depart 11/17/2026) One Way",
+          "title": "Chicago-Midway to San Juan (depart 10/21/2026) One Way",
           "price": 123.0,
-          "currency": "USD",
-          "compare_at_price": null,
-          "discount_percent": 0,
-          "available": true,
-          "offer_url": "https://www.southwest.com/en/flights/flight-deals",
-          "image": "",
-          "valid_until": "2026-11-17",
-          "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
-          "extract": "rendered_api"
-        },
-        {
-          "title": "Tampa to San Juan (depart 10/21/2026) One Way",
-          "price": 144.0,
           "currency": "USD",
           "compare_at_price": null,
           "discount_percent": 0,
@@ -424,21 +466,21 @@
           "image": "",
           "valid_until": "2026-10-21",
           "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
           "extract": "rendered_api"
         },
         {
-          "title": "Baltimore/Washington to San Juan (depart 12/14/2026) One Way",
-          "price": 154.0,
+          "title": "Tampa to San Juan (depart 10/19/2026) One Way",
+          "price": 144.0,
           "currency": "USD",
           "compare_at_price": null,
           "discount_percent": 0,
           "available": true,
           "offer_url": "https://www.southwest.com/en/flights/flight-deals",
           "image": "",
-          "valid_until": "2026-12-14",
+          "valid_until": "2026-10-19",
           "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
           "extract": "rendered_api"
         },
         {
@@ -452,11 +494,11 @@
           "image": "",
           "valid_until": "2026-11-30",
           "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
           "extract": "rendered_api"
         },
         {
-          "title": "Houston Hobby to Cancun (depart 10/26/2026) One Way",
+          "title": "Houston Hobby to Cancun (depart 12/01/2026) One Way",
           "price": 166.0,
           "currency": "USD",
           "compare_at_price": null,
@@ -464,9 +506,23 @@
           "available": true,
           "offer_url": "https://www.southwest.com/en/flights/flight-deals",
           "image": "",
-          "valid_until": "2026-10-26",
+          "valid_until": "2026-12-01",
           "source_url": "https://www.southwest.com/en/flights/flight-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
+          "extract": "rendered_api"
+        },
+        {
+          "title": "Baltimore/Washington to San Juan (depart 11/01/2026) One Way",
+          "price": 178.0,
+          "currency": "USD",
+          "compare_at_price": null,
+          "discount_percent": 0,
+          "available": true,
+          "offer_url": "https://www.southwest.com/en/flights/flight-deals",
+          "image": "",
+          "valid_until": "2026-11-01",
+          "source_url": "https://www.southwest.com/en/flights/flight-deals",
+          "fetched_at": "2026-09-28T01:11:22+00:00",
           "extract": "rendered_api"
         }
       ]
@@ -480,11 +536,11 @@
       "params": "",
       "status": "ok",
       "http": 200,
-      "note": "carnival official deals API, 5 raw | dropped 1 expired (2026-09-26)",
+      "note": "carnival official deals API, 4 raw",
       "prov_note": "Pulled straight from Carnival's own deals API — the same five campaigns the public deals page counts as \"5 Deals\". Each row carries the official offer code and the booking end date published by Carnival. Rows whose end date has passed are removed automatically, never copied through.",
       "renderer": false,
-      "raw_count": 5,
-      "expired_dropped": 1,
+      "raw_count": 4,
+      "expired_dropped": 0,
       "items": [
         {
           "title": "More Time, More Perks Sale Grand Finale (code O7O)",
@@ -497,7 +553,7 @@
           "image": "https://www.carnival.com/-/media/Images/hp-merch/2026/search/couple-balcony-sunset.jpg",
           "valid_until": null,
           "source_url": "https://www.carnival.com/cruise-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:25+00:00",
           "extract": "official_api",
           "benefits": [
             "Final payment due 30 days before sailing",
@@ -510,22 +566,24 @@
           "internal_source": "https://www.carnival.com/cruisesearch/api/deals?sort=recommended&showBest=true&locality=1&currency=USD"
         },
         {
-          "title": "Pack & Go Cruising Sale (code PUG)",
-          "price": 165.0,
+          "title": "Falling For Early Saver Savings (code PEM)",
+          "price": 210.0,
           "currency": "USD",
           "compare_at_price": null,
-          "discount_percent": 55,
+          "discount_percent": 0,
           "available": true,
-          "offer_url": "https://www.carnival.com/cruise-search?icid=icp_ccl_packgosale_092526_deals&rateCodes=PUG&cruisedeals=packgosale",
-          "image": "https://www.carnival.com/-/media/Images/hp-merch/2026/search/umbrellas-couple.jpg",
-          "valid_until": "2026-09-27",
+          "offer_url": "https://www.carnival.com/cruise-search?icid=icp_ccl_earlysaversale_092726_deals&rateCodes=PEM",
+          "image": "https://www.carnival.com/-/media/Images/hp-merch/2026/search/couple-carry.jpg",
+          "valid_until": "2026-09-30",
           "source_url": "https://www.carnival.com/cruise-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:25+00:00",
           "extract": "official_api",
           "benefits": [
-            "Up to 55% off cruise rates",
-            "Select sailings through February 2027",
-            "Hurry! Ends Sunday, September 27th"
+            "Save up to $1,100 per room",
+            "Deposits from $49 per person",
+            "Room upgrade from $1",
+            "Sailings through April 2029",
+            "Hurry! Ends Wednesday, September 30th"
           ],
           "internal_source": "https://www.carnival.com/cruisesearch/api/deals?sort=recommended&showBest=true&locality=1&currency=USD"
         },
@@ -540,7 +598,7 @@
           "image": "https://www.carnival.com/-/media/Images/hp-merch/2026/search/friends-jacuzzi.jpg",
           "valid_until": "2026-09-30",
           "source_url": "https://www.carnival.com/cruise-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:25+00:00",
           "extract": "official_api",
           "benefits": [
             "3rd & 4th guest sail free. Free offer applies to cruise fare only for 3rd and 4th guests. Guest is responsible for taxes and fees.",
@@ -562,7 +620,7 @@
           "image": "https://www.carnival.com/-/media/Images/hp-merch/2022/search/tournament-search.jpg",
           "valid_until": "2027-11-21",
           "source_url": "https://www.carnival.com/cruise-deals",
-          "fetched_at": "2026-09-27T01:28:09+00:00",
+          "fetched_at": "2026-09-28T01:11:25+00:00",
           "extract": "official_api",
           "benefits": [
             "Casino Tournament Seat (for up to 2 people). Terms apply.",
@@ -601,7 +659,7 @@
           "image": "",
           "valid_until": null,
           "source_url": "https://www.hilton.com/en/offers/",
-          "fetched_at": "2026-09-27T01:28:35+00:00",
+          "fetched_at": "2026-09-28T01:11:50+00:00",
           "extract": "rendered_dom"
         },
         {
@@ -615,7 +673,7 @@
           "image": "",
           "valid_until": null,
           "source_url": "https://www.hilton.com/en/offers/",
-          "fetched_at": "2026-09-27T01:28:35+00:00",
+          "fetched_at": "2026-09-28T01:11:50+00:00",
           "extract": "rendered_dom"
         },
         {
@@ -629,7 +687,7 @@
           "image": "",
           "valid_until": null,
           "source_url": "https://www.hilton.com/en/offers/",
-          "fetched_at": "2026-09-27T01:28:35+00:00",
+          "fetched_at": "2026-09-28T01:11:50+00:00",
           "extract": "rendered_dom"
         },
         {
@@ -643,7 +701,7 @@
           "image": "",
           "valid_until": null,
           "source_url": "https://www.hilton.com/en/offers/",
-          "fetched_at": "2026-09-27T01:28:35+00:00",
+          "fetched_at": "2026-09-28T01:11:50+00:00",
           "extract": "rendered_dom"
         },
         {
@@ -657,7 +715,7 @@
           "image": "",
           "valid_until": null,
           "source_url": "https://www.hilton.com/en/offers/",
-          "fetched_at": "2026-09-27T01:28:35+00:00",
+          "fetched_at": "2026-09-28T01:11:50+00:00",
           "extract": "rendered_dom"
         },
         {
@@ -671,7 +729,7 @@
           "image": "",
           "valid_until": null,
           "source_url": "https://www.hilton.com/en/offers/",
-          "fetched_at": "2026-09-27T01:28:35+00:00",
+          "fetched_at": "2026-09-28T01:11:50+00:00",
           "extract": "rendered_dom"
         },
         {
@@ -685,7 +743,7 @@
           "image": "",
           "valid_until": null,
           "source_url": "https://www.hilton.com/en/offers/",
-          "fetched_at": "2026-09-27T01:28:35+00:00",
+          "fetched_at": "2026-09-28T01:11:50+00:00",
           "extract": "rendered_dom"
         },
         {
@@ -699,7 +757,7 @@
           "image": "",
           "valid_until": null,
           "source_url": "https://www.hilton.com/en/offers/",
-          "fetched_at": "2026-09-27T01:28:35+00:00",
+          "fetched_at": "2026-09-28T01:11:50+00:00",
           "extract": "rendered_dom"
         },
         {
@@ -713,7 +771,7 @@
           "image": "",
           "valid_until": null,
           "source_url": "https://www.hilton.com/en/offers/",
-          "fetched_at": "2026-09-27T01:28:35+00:00",
+          "fetched_at": "2026-09-28T01:11:50+00:00",
           "extract": "rendered_dom"
         },
         {
@@ -727,7 +785,7 @@
           "image": "",
           "valid_until": null,
           "source_url": "https://www.hilton.com/en/offers/",
-          "fetched_at": "2026-09-27T01:28:35+00:00",
+          "fetched_at": "2026-09-28T01:11:50+00:00",
           "extract": "rendered_dom"
         },
         {
@@ -741,7 +799,7 @@
           "image": "",
           "valid_until": null,
           "source_url": "https://www.hilton.com/en/offers/",
-          "fetched_at": "2026-09-27T01:28:35+00:00",
+          "fetched_at": "2026-09-28T01:11:50+00:00",
           "extract": "rendered_dom"
         },
         {
@@ -755,7 +813,7 @@
           "image": "",
           "valid_until": null,
           "source_url": "https://www.hilton.com/en/offers/",
-          "fetched_at": "2026-09-27T01:28:35+00:00",
+          "fetched_at": "2026-09-28T01:11:50+00:00",
           "extract": "rendered_dom"
         },
         {
@@ -769,7 +827,7 @@
           "image": "",
           "valid_until": null,
           "source_url": "https://www.hilton.com/en/offers/",
-          "fetched_at": "2026-09-27T01:28:35+00:00",
+          "fetched_at": "2026-09-28T01:11:50+00:00",
           "extract": "rendered_dom"
         },
         {
@@ -783,7 +841,7 @@
           "image": "",
           "valid_until": null,
           "source_url": "https://www.hilton.com/en/offers/",
-          "fetched_at": "2026-09-27T01:28:35+00:00",
+          "fetched_at": "2026-09-28T01:11:50+00:00",
           "extract": "rendered_dom"
         },
         {
@@ -797,7 +855,7 @@
           "image": "",
           "valid_until": null,
           "source_url": "https://www.hilton.com/en/offers/",
-          "fetched_at": "2026-09-27T01:28:35+00:00",
+          "fetched_at": "2026-09-28T01:11:50+00:00",
           "extract": "rendered_dom"
         }
       ]
@@ -828,7 +886,7 @@
           "image": "",
           "valid_until": "2026-11-13",
           "source_url": "https://www.jetblue.com/sale",
-          "fetched_at": "2026-09-27T01:29:12+00:00",
+          "fetched_at": "2026-09-28T01:12:27+00:00",
           "extract": "rendered_dom"
         }
       ]
