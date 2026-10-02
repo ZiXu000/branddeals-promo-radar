@@ -1,0 +1,10 @@
+
+=== travel4 run 2026-10-02T01:12:28Z ===
+  Southwest Airlines     ok       items=33   expired_cut=0   
+  Carnival Cruise Line   ok       items=5    expired_cut=0   carnival official deals API, 5 raw
+  Hilton                 ok       items=15   expired_cut=0   
+  JetBlue                ok       items=1    expired_cut=0   
+total=54  blocked=0  expired_dropped=0
+baseline=50 (2026-10-01)  shrink_floor=25  -> 本次 54 >= 25, 通过
+verdict: ALL_OK -> deploy
+deployed: yes —— wrangler 已执行并成功，线上已更新
